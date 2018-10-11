@@ -1,0 +1,69 @@
+# depslib dependency file v1.0
+1537106125 source:/home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/BootUtils.cpp
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+
+1525687711 /home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/include/bootimg.h
+	<stdint.h>
+
+1537106125 /home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/BootUtils.h
+	<openssl/sha.h>
+
+1537106125 source:/home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/Config.cpp
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+	"Config.h"
+
+1537106125 /home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/Config.h
+
+1537743656 source:/home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/LowLvlPck.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<sys/stat.h>
+	<string.h>
+	<bootimg.h>
+	"mkbootfs.h"
+	"BootUtils.h"
+	"LowLvlPck.h"
+	"Config.h"
+
+1537737542 /home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/mkbootfs.h
+
+1526813672 /home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/LowLvlPck.h
+
+1537743656 source:/home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/main.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<sys/stat.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+	"LowLvlPck.h"
+
+1537744497 source:/home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/mkbootfs.cpp
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<dirent.h>
+	<stdarg.h>
+	<fcntl.h>
+	"android_filesystem_config.h"
+	"LowLvlPck.h"
+	"mkbootfs.h"
+
+1537098541 /home/tonich/Coding/CodeBlocks_PROJ/TerminimalBootEdit/include/android_filesystem_config.h
+	<string.h>
+	<sys/stat.h>
+	<sys/types.h>
+

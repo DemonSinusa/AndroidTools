@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="TerMinimalBootedit" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="dist/Debug/TerMinimalBootedit" prefix_auto="1" extension_auto="1" />
+				<Option object_output="build/Debug/GNU-Linux" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="dist/Release/TerMinimalBootedit" prefix_auto="1" extension_auto="1" />
+				<Option object_output="build/Release/GNU-Linux" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-std=c++14" />
+			<Add option="-std=c11" />
+			<Add option="-fPIC" />
+			<Add option="-m64" />
+			<Add option="-fexceptions" />
+			<Add directory="include" />
+		</Compiler>
+		<Linker>
+			<Add option="-m64" />
+			<Add library="ssl" />
+			<Add library="crypto" />
+		</Linker>
+		<Unit filename="BootUtils.cpp" />
+		<Unit filename="BootUtils.h" />
+		<Unit filename="Config.cpp" />
+		<Unit filename="Config.h" />
+		<Unit filename="LowLvlPck.cpp" />
+		<Unit filename="LowLvlPck.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="mkbootfs.cpp" />
+		<Unit filename="mkbootfs.h" />
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
