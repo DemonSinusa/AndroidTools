@@ -61,7 +61,7 @@ int PackFile(char *path, PCK *p)
 		0, // s.st_uid,
 		0, // s.st_gid,
 		1, // s.st_nlink,
-		0, // s.st_mtime,
+		(unsigned int) opt.st_mtime, // s.st_mtime,
 		(unsigned int) opt.st_size, //data len to pack
 		0, // volmajor
 		0, // volminor
@@ -140,7 +140,7 @@ int PackDir(char *path, PCK *p)
 	    0, // s.st_uid,
 	    0, // s.st_gid,
 	    1, // s.st_nlink,
-	    0, // s.st_mtime,
+	    (unsigned int) opt.st_mtime, // s.st_mtime,
 	    0, //data len to pack
 	    0, // volmajor
 	    0, // volminor
@@ -249,7 +249,7 @@ int CreateList(char *curdir, PCK *p)
 		    itemcount++;
 		} else if (de->d_type == DT_LNK) {
 		    if (!lstat(path, &opt)) {
-			buf = new char[opt.st_size + 1];
+			buf = new char[opt.st_size];
 			readlink(path, buf, opt.st_size);
 			seglen = PackAdata(&opt, buf, opt.st_size, &path[p->cat_len], p);
 			itemcount++;
@@ -283,6 +283,7 @@ PCK *InitPacker(char *dir, char *afile, unsigned int nsc)
     }
 
     packer->inode_count = nsc;
+    packer->packsize = 0;
 
     return packer;
 }
