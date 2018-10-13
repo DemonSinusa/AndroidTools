@@ -292,10 +292,10 @@ boot_img_hdr *Config::GetHeader()
 	strncpy((char *) it_cfg.name, options[PROP_NAME].txtname, BOOT_NAME_SIZE);
 
     if (options[PROP_CMDLINE].len > 0)
-	strncpy((char *) it_cfg.cmdline, options[PROP_NAME].txtname, BOOT_ARGS_SIZE);
+	strncpy((char *) it_cfg.cmdline, options[PROP_CMDLINE].txtname, BOOT_ARGS_SIZE);
 
     if (options[PROP_CMDLINE_EX].len > 0)
-	strncpy((char *) it_cfg.extra_cmdline, options[PROP_NAME].txtname, BOOT_EXTRA_ARGS_SIZE);
+	strncpy((char *) it_cfg.extra_cmdline, options[PROP_CMDLINE_EX].txtname, BOOT_EXTRA_ARGS_SIZE);
 
     if (options[ID0].len > 0)
 	for (int i = 0; i < 8; i++) {
