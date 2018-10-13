@@ -119,10 +119,22 @@ void BootUtils::CloseBFile()
 
 	static_flen = bootlen;
 
-	if (!boot)
-	    CreateBootFromWD(); //Если *.img не загружен, но загружен конфиг из окружения
+	if (!boot) { //Если *.img не загружен, но загружен конфиг из окружения
+	    if (static_flen > PhysOS) {
+		if ((boot = fopen(Bimgname, "w+b")) != NULL) {
+		    fwrite(&zeroid, sizeof (char), static_flen, boot);
+		    fseek(boot, 0, SEEK_SET);
+		} else return;
+	    } else return;
+	} else { //--Если имеем дескриптор файла|:)
 
-	if (boot) { //--Если имеем дескриптор файла|:)
+	    fclose(boot);
+	    if (static_flen > PhysOS) {
+		if ((boot = fopen(Bimgname, "wt+b")) != NULL) {
+		    fwrite(&zeroid, sizeof (char), static_flen, boot);
+		    fseek(boot, 0, SEEK_SET);
+		} else return;
+	    } else return;
 
 	    FullBoot = new char[static_flen];
 
