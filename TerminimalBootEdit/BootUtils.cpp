@@ -50,6 +50,7 @@ BootUtils::~BootUtils()
 bool BootUtils::OpenBFGrab(UfNtype *fname, int offset)
 {
 
+    bool retval = true;
 
     if ((boot = fopen(fname, "r+b")) == NULL)
 	return false;
@@ -85,23 +86,11 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset)
 		memset(unk_xzblk_lnk, 0x00, unk_xzblk_p_len * boot_h.page_size);
 		fread(unk_xzblk_lnk, boot_h.second_size, 1, boot);
 	    }
-	} else
-	    return false;
-    } else
-	return false;
-    return true;
-}
-
-int BootUtils::CreateBootFromWD()
-{
-    if (static_flen > PhysOS) {
-	if ((boot = fopen(Bimgname, "w+b")) != NULL) {
-	    fwrite(&zeroid, sizeof (char), static_flen, boot);
-	    fseek(boot, 0, SEEK_SET);
-	} else
-	    return -1;
-    }
-    return 0;
+	} else retval = false;
+    } else retval = false;
+    fclose(boot);
+    boot = NULL;
+    return retval;
 }
 
 void BootUtils::CloseBFile()
@@ -119,66 +108,53 @@ void BootUtils::CloseBFile()
 
 	static_flen = bootlen;
 
-	if (!boot) { //Если *.img не загружен, но загружен конфиг из окружения
-	    if (static_flen > PhysOS) {
-		if ((boot = fopen(Bimgname, "w+b")) != NULL) {
-		    fwrite(&zeroid, sizeof (char), static_flen, boot);
-		    fseek(boot, 0, SEEK_SET);
-		} else return;
-	    } else return;
-	} else { //--Если имеем дескриптор файла|:)
 
-	    fclose(boot);
-	    if (static_flen > PhysOS) {
-		if ((boot = fopen(Bimgname, "wt+b")) != NULL) {
-		    fwrite(&zeroid, sizeof (char), static_flen, boot);
-		    fseek(boot, 0, SEEK_SET);
-		} else return;
-	    } else return;
+	if (static_flen > PhysOS) {
+	    if ((boot = fopen(Bimgname, "wt+b")) != NULL) {
+		FullBoot = new char[static_flen];
 
-	    FullBoot = new char[static_flen];
+		//0xFF?>:)
+		ZeroMem(FullBoot, static_flen);
+		//0x0
+		ZeroMem(wbh->id, sizeof (wbh->id));
 
-	    //0xFF?>:)
-	    ZeroMem(FullBoot, static_flen);
-	    //0x0
-	    ZeroMem(wbh->id, sizeof (wbh->id));
-
-	    SHA1_Init(&ctx);
-	    SHA1_Update(&ctx, kernel_block_lnk, wbh->kernel_size);
-	    SHA1_Update(&ctx, &wbh->kernel_size, sizeof (wbh->kernel_size));
-	    SHA1_Update(&ctx, rootfs_block_lnk, wbh->ramdisk_size);
-	    SHA1_Update(&ctx, &wbh->ramdisk_size, sizeof (wbh->ramdisk_size));
-	    SHA1_Update(&ctx, unk_xzblk_lnk, wbh->second_size);
-	    SHA1_Update(&ctx, &wbh->second_size, sizeof (wbh->second_size));
-	    sha = SHA1_Final(hash, &ctx);
-	    if (sha == 1)
-		memcpy(wbh->id, hash,
-		    SHA_DIGEST_LENGTH > sizeof (wbh->id) ? sizeof (wbh->id) : SHA_DIGEST_LENGTH);
+		SHA1_Init(&ctx);
+		SHA1_Update(&ctx, kernel_block_lnk, wbh->kernel_size);
+		SHA1_Update(&ctx, &wbh->kernel_size, sizeof (wbh->kernel_size));
+		SHA1_Update(&ctx, rootfs_block_lnk, wbh->ramdisk_size);
+		SHA1_Update(&ctx, &wbh->ramdisk_size, sizeof (wbh->ramdisk_size));
+		SHA1_Update(&ctx, unk_xzblk_lnk, wbh->second_size);
+		SHA1_Update(&ctx, &wbh->second_size, sizeof (wbh->second_size));
+		sha = SHA1_Final(hash, &ctx);
+		if (sha == 1)
+		    memcpy(wbh->id, hash,
+			SHA_DIGEST_LENGTH > sizeof (wbh->id) ? sizeof (wbh->id) : SHA_DIGEST_LENGTH);
 
 
-	    memcpy(wbh->magic, BOOT_MAGIC, BOOT_MAGIC_SIZE);
+		memcpy(wbh->magic, BOOT_MAGIC, BOOT_MAGIC_SIZE);
 
-	    memcpy(&FullBoot[wbh->page_size + PhysOS], kernel_block_lnk,
-		    wbh->kernel_size);
-	    memcpy(&FullBoot[(kernel_p_len + 1) * wbh->page_size + PhysOS],
-		    rootfs_block_lnk, wbh->ramdisk_size);
-	    if (unk_xzblk_p_len > 0)
-		memcpy(&FullBoot[(kernel_p_len + rootfs_p_len + 1) * boot_h.page_size + PhysOS],
-		    unk_xzblk_lnk, wbh->second_size);
-	    memcpy(&FullBoot[ PhysOS], wbh, sizeof (boot_img_hdr));
+		memcpy(&FullBoot[wbh->page_size + PhysOS], kernel_block_lnk,
+			wbh->kernel_size);
+		memcpy(&FullBoot[(kernel_p_len + 1) * wbh->page_size + PhysOS],
+			rootfs_block_lnk, wbh->ramdisk_size);
+		if (unk_xzblk_p_len > 0)
+		    memcpy(&FullBoot[(kernel_p_len + rootfs_p_len + 1) * boot_h.page_size + PhysOS],
+			unk_xzblk_lnk, wbh->second_size);
+		memcpy(&FullBoot[ PhysOS], wbh, sizeof (boot_img_hdr));
 
-	    fseek(boot, 0, SEEK_SET);
-	    fwrite(FullBoot, static_flen, 1, boot);
+		fseek(boot, 0, SEEK_SET);
+		fwrite(FullBoot, static_flen, 1, boot);
 
-	    //---++++++++++++++++++++++=)
-	    fclose(boot);
-	    if (kernel_block_lnk)
-		delete kernel_block_lnk;
-	    if (rootfs_block_lnk)
-		delete rootfs_block_lnk;
-	    if (unk_xzblk_lnk)
-		delete unk_xzblk_lnk;
-	    delete FullBoot;
+		//---++++++++++++++++++++++=)
+		fclose(boot);
+		if (kernel_block_lnk)
+		    delete kernel_block_lnk;
+		if (rootfs_block_lnk)
+		    delete rootfs_block_lnk;
+		if (unk_xzblk_lnk)
+		    delete unk_xzblk_lnk;
+		delete FullBoot;
+	    }
 	}
     }
 }

@@ -23,8 +23,8 @@ public:
     BootUtils(const BootUtils&);
     BootUtils(UfNtype *fname, int offset);
     virtual ~BootUtils();
-    char *FullBoot=NULL;
-    unsigned int static_flen=0;
+    char *FullBoot = NULL;
+    unsigned int static_flen = 0;
     boot_img_hdr *GetCurMainConfig();
     void SetCurMainConfig(boot_img_hdr *conf);
     int InjKernel(void *dump, int len);
@@ -33,20 +33,19 @@ public:
     void *GetCurKernel(int *len);
     void *GetCurROOTFS(int *len);
     void *GetCurXZ401(int *len);
-    int CreateBootFromWD();
 private:
-    UfNtype *Bimgname=NULL;
+    UfNtype *Bimgname = NULL;
 
-    boot_img_hdr boot_h, *wbh=NULL;
+    boot_img_hdr boot_h, *wbh = NULL;
     SHA_CTX ctx;
     unsigned char hash[SHA_DIGEST_LENGTH];
-    int sha=0;
+    int sha = 0;
 
-    FILE *boot=NULL;
-    int PhysOS=0;
-    int kernel_p_len=0x00, rootfs_p_len=0x00, unk_xzblk_p_len=0x00;
-    char *kernel_block_lnk=NULL,\
-                           *rootfs_block_lnk=NULL, *unk_xzblk_lnk=NULL;
+    FILE *boot = NULL;
+    int PhysOS = 0;
+    int kernel_p_len = 0x00, rootfs_p_len = 0x00, unk_xzblk_p_len = 0x00;
+    char *kernel_block_lnk = NULL,\
+                           *rootfs_block_lnk = NULL, *unk_xzblk_lnk = NULL;
 
     bool OpenBFGrab(UfNtype *fname, int offset);
     void CloseBFile();
