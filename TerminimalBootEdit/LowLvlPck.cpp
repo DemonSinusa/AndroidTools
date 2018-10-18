@@ -11,6 +11,7 @@ using namespace std;
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <string.h>
 
 #include <bootimg.h>
@@ -172,7 +173,7 @@ int InOutPorting(char *selfname)
 	if (tistic.st_mode & (S_IFMT | S_IFDIR)) {
 	    PCK *pack = NULL;
 	    int count = 0;
-	    char *thecpio = (char *) "ramdisk.cpio";
+	    char *thecpio = (char *) "ramdisk.cpio", *fullcmd = NULL;
 	    char *fullpath = new char[strlen(thecpio) + strlen(EnvPath[5])];
 	    sprintf(fullpath, "%s%s", EnvPath[5], thecpio);
 	    pack = InitPacker(EnvPath[7], fullpath, next_inode);
@@ -181,6 +182,12 @@ int InOutPorting(char *selfname)
 #ifdef DEBUG
 	    fprintf(stdout, "%s-%d вхождений\r\n", "Припаковано", count);
 #endif
+	    chdir(EnvPath[5]);
+	    fullcmd = new char[strlen(thecpio) + 7];
+	    strcpy(fullcmd, "gzip ");
+	    strcat(fullcmd, thecpio);
+	    system(fullcmd);
+	    delete fullcmd;
 	    delete fullpath;
 	}
     }

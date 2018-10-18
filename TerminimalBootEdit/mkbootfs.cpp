@@ -249,7 +249,8 @@ int CreateList(char *curdir, PCK *p)
 		    itemcount++;
 		} else if (de->d_type == DT_LNK) {
 		    if (!lstat(path, &opt)) {
-			buf = new char[opt.st_size];
+			buf = new char[opt.st_size + 1];
+			memset(buf, 0x00, opt.st_size + 1);
 			readlink(path, buf, opt.st_size);
 			seglen = PackAdata(&opt, buf, opt.st_size, &path[p->cat_len], p);
 			itemcount++;
