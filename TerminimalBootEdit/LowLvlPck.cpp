@@ -182,10 +182,9 @@ int InOutPorting(char *selfname)
 #ifdef DEBUG
 	    fprintf(stdout, "%s-%d вхождений\r\n", "Припаковано", count);
 #endif
-	    chdir(EnvPath[5]);
-	    fullcmd = new char[strlen(thecpio) + 7];
+	    fullcmd = new char[strlen(fullpath) + 7];
 	    strcpy(fullcmd, "gzip ");
-	    strcat(fullcmd, thecpio);
+	    strcat(fullcmd, fullpath);
 	    system(fullcmd);
 	    delete fullcmd;
 	    delete fullpath;
