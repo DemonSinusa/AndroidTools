@@ -83,7 +83,7 @@ int PackFile(char *path, PCK *p)
 		addyprt = new char[opt.st_size + sotag + 1];
 		if (sotag > 0)memset(addyprt + opt.st_size, 0x00, sotag);
 		if (fread(addyprt, opt.st_size, 1, f) != 1)
-		    fprintf(stderr, "*File:%s\r\n--File System KARRUPA&readn't but opened to read(%08X)! WTF!?(:)\r\n", path, f->_fileno);
+                fprintf(stderr, "*File:%s\r\n--File System KARRUPA&readn't but opened to read(%08X)! WTF!?(:)\r\n", path, f->_fileno);
 		//Расклад такой, если не читаешь stderr то не узнаешь почему ниворкс
 		fwrite(addyprt, opt.st_size + sotag, 1, p->fh);
 		p->packsize += opt.st_size + sotag;

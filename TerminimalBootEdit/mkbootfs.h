@@ -14,7 +14,8 @@
 #ifndef MKBOOTFS_H
 #define MKBOOTFS_H
 
-typedef struct _packer_ {
+typedef struct _packer_
+{
     unsigned int inode_count, packsize, cat_len;
     char *catalog;
     FILE *fh;

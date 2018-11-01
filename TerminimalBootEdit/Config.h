@@ -22,12 +22,14 @@
 #define TYPE_HEX    2
 #define TYPE_DTIME  3
 
-typedef struct item {
+typedef struct item
+{
     char txtname[MAX_PARAMETR_LEN];
     short datatype, len;
 } OPT;
 
-typedef struct _osversion_ {
+typedef struct _osversion_
+{
     int major,minor,patch;
     int year,month;
 } OSV;
@@ -53,7 +55,8 @@ typedef struct _osversion_ {
 #define     L_ID6   "INT_ID_6"
 #define     L_ID7   "INT_ID_7"
 
-enum RW_var {
+enum RW_var
+{
     PROP_KERNEL_ADDR = 0,
     PROP_KERNELTAG_ADDR,
     PROP_ROOTFS_ADDR,
@@ -78,7 +81,8 @@ enum RW_var {
     NUM_PROPS
 };
 
-class Config {
+class Config
+{
 public:
     Config();
     ~Config();

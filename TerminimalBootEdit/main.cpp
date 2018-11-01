@@ -27,9 +27,10 @@ using namespace std;
 
 
 char *EnvDir[] = {NULL,
-    (char *) "zImage", (char *) "ramdisk.cpio.gz",
-    (char *) "README.txt", (char *) "secondpart.dat",
-    (char *) "config.conf", (char *) "ramdisk"};
+                  (char *) "zImage", (char *) "ramdisk.cpio.gz",
+                  (char *) "README.txt", (char *) "secondpart.dat",
+                  (char *) "config.conf", (char *) "ramdisk"
+                 };
 
 int main(int argc, char** argv)
 {
