@@ -63,8 +63,8 @@ int InOutPorting(char *selfname)
     struct stat tistic;
     FILE *fh = NULL;
     int envlen = 0;
-    int datalen = 0;
-    char *data = NULL;
+//    int datalen = 0;
+//    char *data = NULL;
 
     EnvPath[6] = new UfNtype[strlen(tpoint) + 1];
     strcpy(EnvPath[6], tpoint);

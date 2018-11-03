@@ -7,7 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="dist/Debug/TerMinimalBootedit" prefix_auto="1" extension_auto="1" />
+				<Option output="dist/Debug/GNU-Linux/TerMinimalBootedit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="build/Debug/GNU-Linux" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -16,7 +16,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="dist/Release/TerMinimalBootedit" prefix_auto="1" extension_auto="1" />
+				<Option output="dist/Release/GNU-Linux/TerMinimalBootedit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="build/Release/GNU-Linux" />
 				<Option type="1" />
 				<Option compiler="gcc" />

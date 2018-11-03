@@ -161,6 +161,7 @@ static struct fs_path_config android_dirs[] = {
     { 00775, AID_MEDIA_RW, AID_MEDIA_RW, "data/media"},
     { 00775, AID_MEDIA_RW, AID_MEDIA_RW, "data/media/Music"},
     { 00771, AID_SYSTEM, AID_SYSTEM, "data"},
+    { 00775, AID_ROOT, AID_SYSTEM, "mnt"},
     { 00755, AID_ROOT, AID_SHELL, "sbin"},
     { 00755, AID_ROOT, AID_SHELL, "system/bin"},
     { 00755, AID_ROOT, AID_SHELL, "system/vendor"},

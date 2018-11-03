@@ -35,7 +35,7 @@ char *EnvDir[] = {NULL,
 int main(int argc, char** argv)
 {
     char WDR = 0;
-    struct stat tistic;
+//    struct stat tistic;
     char *bootimgname = (char *) "boot.img";
     char *recimgname = (char *) "recovery.img";
     EnvDir[0] = new char[strlen(argv[0])];
