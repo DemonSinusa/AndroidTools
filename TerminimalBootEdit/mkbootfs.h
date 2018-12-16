@@ -16,9 +16,9 @@
 
 typedef struct _packer_
 {
-    unsigned int inode_count, packsize, cat_len;
-    char *catalog;
-    FILE *fh;
+	unsigned int inode_count, packsize, cat_len;
+	char *catalog;
+	FILE *fh;
 } PCK;
 
 static unsigned int next_inode = 300000;

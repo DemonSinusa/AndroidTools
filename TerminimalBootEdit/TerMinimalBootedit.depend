@@ -67,3 +67,71 @@
 	<sys/stat.h>
 	<sys/types.h>
 
+1541059655 source:/home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/BootUtils.cpp
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+
+1540726339 /home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/include/bootimg.h
+	<stdint.h>
+
+1541059655 /home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/BootUtils.h
+	<openssl/sha.h>
+
+1541059655 source:/home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/Config.cpp
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+	"Config.h"
+
+1541059655 /home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/Config.h
+
+1544999565 source:/home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/LowLvlPck.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<sys/stat.h>
+	<unistd.h>
+	<string.h>
+	<bootimg.h>
+	"mkbootfs.h"
+	"BootUtils.h"
+	"LowLvlPck.h"
+	"Config.h"
+
+1544999663 /home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/mkbootfs.h
+
+1540726339 /home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/LowLvlPck.h
+
+1541253082 source:/home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/main.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<sys/stat.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+	"LowLvlPck.h"
+
+1544990842 source:/home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/mkbootfs.cpp
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<dirent.h>
+	<stdarg.h>
+	<fcntl.h>
+	"android_filesystem_config.h"
+	"mkbootfs.h"
+
+1541258874 /home/anton/Coding/GitDroid/AndroidTools/TerminimalBootEdit/include/android_filesystem_config.h
+	<string.h>
+	<sys/stat.h>
+	<sys/types.h>
+

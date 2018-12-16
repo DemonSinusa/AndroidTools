@@ -34,21 +34,21 @@ char *EnvDir[] = {NULL,
 
 int main(int argc, char** argv)
 {
-    char WDR = 0;
-//    struct stat tistic;
-    char *bootimgname = (char *) "boot.img";
-    char *recimgname = (char *) "recovery.img";
-    EnvDir[0] = new char[strlen(argv[0])];
-    strcpy(EnvDir[0], argv[0]);
-    char *poz = strrchr(EnvDir[0], '/');
-    poz[1] = '\0';
-    //--->
-    WDR += ReMakeANDCatalogs((char *) "WORK_DIR_BOOT", bootimgname);
-    WDR += ReMakeANDCatalogs((char *) "WORK_DIR_RECOVERY", recimgname);
-    //---<
-    delete EnvDir[0];
+	char WDR = 0;
+	//    struct stat tistic;
+	char *bootimgname = (char *) "boot.img";
+	char *recimgname = (char *) "recovery.img";
+	EnvDir[0] = new char[strlen(argv[0])];
+	strcpy(EnvDir[0], argv[0]);
+	char *poz = strrchr(EnvDir[0], '/');
+	poz[1] = '\0';
+	//--->
+	WDR += ReMakeANDCatalogs((char *) "WORK_DIR_BOOT", bootimgname);
+	WDR += ReMakeANDCatalogs((char *) "WORK_DIR_RECOVERY", recimgname);
+	//---<
+	delete EnvDir[0];
 
 
-    return 0;
+	return 0;
 }
 

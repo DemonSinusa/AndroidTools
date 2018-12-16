@@ -24,14 +24,14 @@
 
 typedef struct item
 {
-    char txtname[MAX_PARAMETR_LEN];
-    short datatype, len;
+	char txtname[MAX_PARAMETR_LEN];
+	short datatype, len;
 } OPT;
 
 typedef struct _osversion_
 {
-    int major,minor,patch;
-    int year,month;
+	int major,minor,patch;
+	int year,month;
 } OSV;
 
 #define    L_PROP_KERNEL_ADDR "KERNEL_ADDRESS"
@@ -57,57 +57,57 @@ typedef struct _osversion_
 
 enum RW_var
 {
-    PROP_KERNEL_ADDR = 0,
-    PROP_KERNELTAG_ADDR,
-    PROP_ROOTFS_ADDR,
-    PROP_SECONDFS_ADDR,
-    PROP_PAGE_SIZE,
+	PROP_KERNEL_ADDR = 0,
+	PROP_KERNELTAG_ADDR,
+	PROP_ROOTFS_ADDR,
+	PROP_SECONDFS_ADDR,
+	PROP_PAGE_SIZE,
 
-    MIX_OS_VERSION,
+	MIX_OS_VERSION,
 
-    PROP_NAME,
-    PROP_CMDLINE,
-    PROP_CMDLINE_EX,
+	PROP_NAME,
+	PROP_CMDLINE,
+	PROP_CMDLINE_EX,
 
-    ID0,
-    ID1,
-    ID2,
-    ID3,
-    ID4,
-    ID5,
-    ID6,
-    ID7,
+	ID0,
+	ID1,
+	ID2,
+	ID3,
+	ID4,
+	ID5,
+	ID6,
+	ID7,
 
-    NUM_PROPS
+	NUM_PROPS
 };
 
 class Config
 {
 public:
-    Config();
-    ~Config();
+	Config();
+	~Config();
 
-    int EatBinConfig(void *data,unsigned int len);
-    int EatBinConfig(UfNtype *file);
+	int EatBinConfig(void *data,unsigned int len);
+	int EatBinConfig(UfNtype *file);
 
-    int EatTxtConfig(void *data);
-    int EatTxtConfig(UfNtype *file);
+	int EatTxtConfig(void *data);
+	int EatTxtConfig(UfNtype *file);
 
-    int WriteCfg(UfNtype *file);
-    boot_img_hdr *GetHeader();
+	int WriteCfg(UfNtype *file);
+	boot_img_hdr *GetHeader();
 
 private:
-    FILE *fc = NULL;
-    char *block = NULL, *txtblk = NULL;
-    int blklen = 0, tblklen = 0;
-    boot_img_hdr it_cfg;
+	FILE *fc = NULL;
+	char *block = NULL, *txtblk = NULL;
+	int blklen = 0, tblklen = 0;
+	boot_img_hdr it_cfg;
 
-    OSV ver;
-    int PackOSVersion(OSV *version);
-    void UnpackOSVersion(OSV *version,int packed);
+	OSV ver;
+	int PackOSVersion(OSV *version);
+	void UnpackOSVersion(OSV *version,int packed);
 
-    void SetType(OPT *item, int i);
-    int SetParm(UfNtype *str, const char *list[]);
+	void SetType(OPT *item, int i);
+	int SetParm(UfNtype *str, const char *list[]);
 
 };
 

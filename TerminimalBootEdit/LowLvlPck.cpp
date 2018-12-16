@@ -25,14 +25,14 @@ extern char *EnvDir[];
 
 char *EnvPath[] =
 {
-    NULL, //Ядро
-    NULL, //РутФС
-    NULL, //Прочти.тхт
-    NULL, //Доп.ПО
-    NULL, //Конфиг
-    NULL, //Рабочий каталог
-    NULL, //Путь до *.img
-    NULL //Каталог ramdisk/
+	NULL, //Ядро
+	NULL, //РутФС
+	NULL, //Прочти.тхт
+	NULL, //Доп.ПО
+	NULL, //Конфиг
+	NULL, //Рабочий каталог
+	NULL, //Путь до *.img
+	NULL //Каталог ramdisk/
 };
 
 
@@ -59,156 +59,154 @@ char *readme = (char *) "Структура каталогов и принцип
 
 int InOutPorting(char *selfname)
 {
-    char *tpoint = selfname;
-    struct stat tistic;
-    FILE *fh = NULL;
-    int envlen = 0;
-//    int datalen = 0;
-//    char *data = NULL;
+	char *tpoint = selfname;
+	struct stat tistic;
+	FILE *fh = NULL;
+	int envlen = 0;
 
-    EnvPath[6] = new UfNtype[strlen(tpoint) + 1];
-    strcpy(EnvPath[6], tpoint);
+	EnvPath[6] = new UfNtype[strlen(tpoint) + 1];
+	strcpy(EnvPath[6], tpoint);
 
-    //Пути разложены
-    BootUtils *bu = new BootUtils(EnvPath[6], 0);
-    Config *cfg = new Config();
-    //--->
+	//Пути разложены
+	BootUtils *bu = new BootUtils(EnvPath[6], 0);
+	Config *cfg = new Config();
+	//--->
 
-    fh = fopen(EnvPath[2], "wt");
-    fwrite(readme, strlen(readme), 1, fh);
-    fclose(fh);
+	fh = fopen(EnvPath[2], "wt");
+	fwrite(readme, strlen(readme), 1, fh);
+	fclose(fh);
 
-    //Конфиг
-    if (!stat(EnvPath[4], &tistic))
-    {
-        if (tistic.st_mode & (S_IFMT | S_IFREG))
-        {
-            if (tistic.st_size != 0)
-            {
-                cfg->EatTxtConfig(EnvPath[4]);
-                bu->SetCurMainConfig(cfg->GetHeader());
-            }
-        }
-    }
-    else
-    {
-        tpoint = (char *) bu->GetCurMainConfig();
-        if (tpoint)
-        {
-            cfg->EatBinConfig(tpoint, sizeof (boot_img_hdr));
-            cfg->WriteCfg(EnvPath[4]);
-        }
-    }
-    //Ядро
-    if (!stat(EnvPath[0], &tistic))
-    {
-        if (tistic.st_mode & (S_IFMT | S_IFREG))
-        {
-            if (tistic.st_size != 0)
-            {
-                if(bu->InjKernel(EnvPath[0])!=1)
-                {
-                    fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't\r\n", EnvPath[0]);
-                }
-            }
-        }
-    }
-    else
-    {
-        tpoint = (char *) bu->GetCurKernel(&envlen);
-        if (envlen > 0)
-        {
-            if ((fh = fopen(EnvPath[0], "wb")) != NULL)
-            {
-                fwrite(tpoint, envlen, 1, fh);
-                fclose(fh);
-            }
-        }
-    }
-    //РутФС
-    if (!stat(EnvPath[1], &tistic))
-    {
-        if (tistic.st_mode & (S_IFMT | S_IFREG))
-        {
-            if (tistic.st_size != 0)
-            {
-                if(bu->InjROOTFS(EnvPath[1])!=1)
-                {
-                    fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't\r\n", EnvPath[1]);
-                }
-            }
-        }
-    }
-    else
-    {
-        tpoint = (char *) bu->GetCurROOTFS(&envlen);
-        if (envlen > 0)
-        {
-            if ((fh = fopen(EnvPath[1], "wb")) != NULL)
-            {
-                fwrite(tpoint, envlen, 1, fh);
-                fclose(fh);
-            }
-        }
-    }
+	//Конфиг
+	if (!stat(EnvPath[4], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFREG))
+		{
+			if (tistic.st_size != 0)
+			{
+				cfg->EatTxtConfig(EnvPath[4]);
+				bu->SetCurMainConfig(cfg->GetHeader());
+			}
+		}
+	}
+	else
+	{
+		tpoint = (char *) bu->GetCurMainConfig();
+		if (tpoint)
+		{
+			cfg->EatBinConfig(tpoint, sizeof (boot_img_hdr));
+			cfg->WriteCfg(EnvPath[4]);
+		}
+	}
+	//Ядро
+	if (!stat(EnvPath[0], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFREG))
+		{
+			if (tistic.st_size != 0)
+			{
+				if(bu->InjKernel(EnvPath[0])!=1)
+				{
+					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[0]);
+				}
+			}
+		}
+	}
+	else
+	{
+		tpoint = (char *) bu->GetCurKernel(&envlen);
+		if (envlen > 0)
+		{
+			if ((fh = fopen(EnvPath[0], "wb")) != NULL)
+			{
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+	}
+	//-----------------------------------РутФС----------------------
+	if (!stat(EnvPath[7], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFDIR))
+		{
+			PCK *pack = NULL;
+			int count = 0;
+			char *thecpio = (char *) "ramdisk.cpio", *fullcmd = NULL;
+			char *fullpath = new char[strlen(thecpio) + strlen(EnvPath[5])];
+			sprintf(fullpath, "%s%s", EnvPath[5], thecpio);
+			pack = InitPacker(EnvPath[7], fullpath, next_inode);
+			count = CreateList(EnvPath[7], pack);
+			FInitPacker(pack);
+			#ifdef DEBUG
+			fprintf(stdout, "%s-%d вхождений\r\n", "Припаковано", count);
+			#endif
+			fullcmd = new char[strlen(fullpath) + 7];
+			strcpy(fullcmd, "gzip ");
+			strcat(fullcmd, fullpath);
+			system(fullcmd);
+			delete fullcmd;
+			delete fullpath;
+		}
+	}
 
-    //Доп ПО
-    if (!stat(EnvPath[3], &tistic))
-    {
-        if (tistic.st_mode & (S_IFMT | S_IFREG))
-        {
-            if (tistic.st_size != 0)
-            {
-                if(bu->InjXZ401(EnvPath[3])!=1)
-                {
-                    fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't\r\n", EnvPath[3]);
-                }
-            }
-        }
-    }
-    else
-    {
-        tpoint = (char *) bu->GetCurXZ401(&envlen);
-        if (envlen > 0)
-        {
-            if ((fh = fopen(EnvPath[3], "wb")) != NULL)
-            {
-                fwrite(tpoint, envlen, 1, fh);
-                fclose(fh);
-            }
-        }
-    }
+	if (!stat(EnvPath[1], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFREG))
+		{
+			if (tistic.st_size != 0)
+			{
+				if(bu->InjROOTFS(EnvPath[1])!=1)
+				{
+					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[1]);
+				}
+			}
+		}
+	}
+	else
+	{
+		tpoint = (char *) bu->GetCurROOTFS(&envlen);
+		if (envlen > 0)
+		{
+			if ((fh = fopen(EnvPath[1], "wb")) != NULL)
+			{
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+	}
+	//-------------------------------RootFs----------------
 
-    if (!stat(EnvPath[7], &tistic))
-    {
-        if (tistic.st_mode & (S_IFMT | S_IFDIR))
-        {
-            PCK *pack = NULL;
-            int count = 0;
-            char *thecpio = (char *) "ramdisk.cpio", *fullcmd = NULL;
-            char *fullpath = new char[strlen(thecpio) + strlen(EnvPath[5])];
-            sprintf(fullpath, "%s%s", EnvPath[5], thecpio);
-            pack = InitPacker(EnvPath[7], fullpath, next_inode);
-            count = CreateList(EnvPath[7], pack);
-            FInitPacker(pack);
-#ifdef DEBUG
-            fprintf(stdout, "%s-%d вхождений\r\n", "Припаковано", count);
-#endif
-            fullcmd = new char[strlen(fullpath) + 7];
-            strcpy(fullcmd, "gzip ");
-            strcat(fullcmd, fullpath);
-            system(fullcmd);
-            bu->InjROOTFS(fullpath);
-            delete fullcmd;
-            delete fullpath;
-        }
-    }
+	//Доп ПО
+	if (!stat(EnvPath[3], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFREG))
+		{
+			if (tistic.st_size != 0)
+			{
+				if(bu->InjXZ401(EnvPath[3])!=1)
+				{
+					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[3]);
+				}
+			}
+		}
+	}
+	else
+	{
+		tpoint = (char *) bu->GetCurXZ401(&envlen);
+		if (envlen > 0)
+		{
+			if ((fh = fopen(EnvPath[3], "wb")) != NULL)
+			{
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+	}
 
 
-    delete cfg;
-    delete bu;
-    delete EnvPath[6];
-    return 1;
+	delete cfg;
+	delete bu;
+	delete EnvPath[6];
+	return 1;
 }
 
 /*
@@ -216,81 +214,81 @@ int InOutPorting(char *selfname)
  */
 int ReMakeANDCatalogs(char *w_name, char *selfname)
 {
-    char *tpoint = w_name, *wfile = NULL;
-    struct stat tistic;
-    int envlen = 0, tenvlen = 0, retval = 0;
+	char *tpoint = w_name, *wfile = NULL;
+	struct stat tistic;
+	int envlen = 0, tenvlen = 0, retval = 0;
 
 
-    envlen = strlen(EnvDir[0]);
+	envlen = strlen(EnvDir[0]);
 
-    wfile = new UfNtype[envlen + strlen(selfname) + 1];
-    strcpy(wfile, EnvDir[0]);
-    strcat(wfile, selfname);
-    //WD=E5
-    EnvPath[5] = new UfNtype[envlen + strlen(tpoint) + 2];
-    strcpy(EnvPath[5], EnvDir[0]);
-    strcat(EnvPath[5], tpoint);
-    envlen = strlen(EnvPath[5]);
-    EnvPath[5][envlen] = TRUE_SLASH;
-    EnvPath[5][envlen + 1] = '\0';
-
-
-    EnvPath[7] = new UfNtype[envlen + strlen(EnvDir[6])];
-    strcpy(EnvPath[7], EnvPath[5]);
-    strcat(EnvPath[7], EnvDir[6]);
-
-    mkdir(EnvPath[5], 0755);
+	wfile = new UfNtype[envlen + strlen(selfname) + 1];
+	strcpy(wfile, EnvDir[0]);
+	strcat(wfile, selfname);
+	//WD=E5
+	EnvPath[5] = new UfNtype[envlen + strlen(tpoint) + 2];
+	strcpy(EnvPath[5], EnvDir[0]);
+	strcat(EnvPath[5], tpoint);
+	envlen = strlen(EnvPath[5]);
+	EnvPath[5][envlen] = TRUE_SLASH;
+	EnvPath[5][envlen + 1] = '\0';
 
 
-    if (!stat(EnvPath[5], &tistic))
-    {
-        if (tistic.st_mode & (S_IFMT | S_IFDIR))
-        {
+	EnvPath[7] = new UfNtype[envlen + strlen(EnvDir[6])];
+	strcpy(EnvPath[7], EnvPath[5]);
+	strcat(EnvPath[7], EnvDir[6]);
 
-            tpoint = EnvDir[3];
-            tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
-            EnvPath[2] = new UfNtype[tenvlen + 1];
-            strcpy(EnvPath[2], EnvPath[5]);
-            strcat(EnvPath[2], tpoint);
-            tpoint = EnvDir[1];
-            tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
-            EnvPath[0] = new UfNtype[tenvlen + 1];
-            strcpy(EnvPath[0], EnvPath[5]);
-            strcat(EnvPath[0], tpoint);
-            tpoint = EnvDir[2];
-            tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
-            EnvPath[1] = new UfNtype[tenvlen + 1];
-            strcpy(EnvPath[1], EnvPath[5]);
-            strcat(EnvPath[1], tpoint);
-            tpoint = EnvDir[4];
-            tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
-            EnvPath[3] = new UfNtype[tenvlen + 1];
-            strcpy(EnvPath[3], EnvPath[5]);
-            strcat(EnvPath[3], tpoint);
-            tpoint = EnvDir[5];
-            tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
-            EnvPath[4] = new UfNtype[tenvlen + 1];
-            strcpy(EnvPath[4], EnvPath[5]);
-            strcat(EnvPath[4], tpoint);
+	mkdir(EnvPath[5], 0755);
 
 
-            retval = 1;
+	if (!stat(EnvPath[5], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFDIR))
+		{
 
-        }
-        else
-            retval = 0;
-    }
-    if (retval)
-        InOutPorting(wfile);
-    delete wfile;
-    delete EnvPath[0];
-    delete EnvPath[1];
-    delete EnvPath[2];
-    delete EnvPath[3];
-    delete EnvPath[4];
-    delete EnvPath[5];
-    delete EnvPath[7];
-    return retval;
+			tpoint = EnvDir[3];
+			tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
+			EnvPath[2] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[2], EnvPath[5]);
+			strcat(EnvPath[2], tpoint);
+			tpoint = EnvDir[1];
+			tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
+			EnvPath[0] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[0], EnvPath[5]);
+			strcat(EnvPath[0], tpoint);
+			tpoint = EnvDir[2];
+			tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
+			EnvPath[1] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[1], EnvPath[5]);
+			strcat(EnvPath[1], tpoint);
+			tpoint = EnvDir[4];
+			tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
+			EnvPath[3] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[3], EnvPath[5]);
+			strcat(EnvPath[3], tpoint);
+			tpoint = EnvDir[5];
+			tenvlen = strlen(EnvPath[5]) + strlen(tpoint);
+			EnvPath[4] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[4], EnvPath[5]);
+			strcat(EnvPath[4], tpoint);
+
+
+			retval = 1;
+
+		}
+		else
+			retval = 0;
+	}
+	if (retval)
+		InOutPorting(wfile);
+	delete wfile;
+	delete EnvPath[0];
+	delete EnvPath[1];
+	delete EnvPath[2];
+	delete EnvPath[3];
+	delete EnvPath[4];
+	delete EnvPath[5];
+	delete EnvPath[7];
+	return retval;
 }
 
 
