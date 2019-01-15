@@ -21,4 +21,5 @@ droid_fs_repacker: if there is a "ramdisk /" directory in the working directory,
 	"$ gzip ramdisk.cpio" which will be packed into the image.
 zImage_builder_helper:in the presence of a suitable, untreated, nuclear core extract 
 	-attach as zImage.pck and exult, then remove the excess
-Good luck.
+
+Out from standarts and limitless.. Good luck.
