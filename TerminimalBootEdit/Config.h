@@ -38,7 +38,10 @@ typedef struct _osversion_
 #define    L_PROP_KERNELTAG_ADDR    "KERNEL_TAG_ADDRESS"
 #define    L_PROP_ROOTFS_ADDR "ROOTFS_ADDRESS"
 #define    L_PROP_SECONDFS_ADDR "SECONDFS_ADDRESS"
+#define    L_PROP_DBO_ADDR "DBO_ADDRESS"
+
 #define    L_PROP_PAGE_SIZE "PAGE_SIZE"
+#define    L_PROP_DBOHEADER_SIZE "DBO_HEADER_SIZE"
 
 #define    L_MIX_OS_VERSION "OS_VERSION"
 
@@ -61,7 +64,9 @@ enum RW_var
 	PROP_KERNELTAG_ADDR,
 	PROP_ROOTFS_ADDR,
 	PROP_SECONDFS_ADDR,
+    PROP_DBO_ADDR,
 	PROP_PAGE_SIZE,
+	PROP_DBOHADER_SIZE,
 
 	MIX_OS_VERSION,
 
@@ -94,13 +99,13 @@ public:
 	int EatTxtConfig(UfNtype *file);
 
 	int WriteCfg(UfNtype *file);
-	boot_img_hdr *GetHeader();
+	droid_boot_header *GetHeader();
 
 private:
 	FILE *fc = NULL;
 	char *block = NULL, *txtblk = NULL;
 	int blklen = 0, tblklen = 0;
-	boot_img_hdr it_cfg;
+	droid_boot_header it_cfg;
 
 	OSV ver;
 	int PackOSVersion(OSV *version);

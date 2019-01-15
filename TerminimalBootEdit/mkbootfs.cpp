@@ -225,9 +225,7 @@ int CreateList(char *curdir, PCK *p)
 						delete buf;
 					}
 				}
-				#ifdef DEBUG
-				fprintf(stdout, "*Каталог:%s\r\n--Вхождение:%s(%dbsz)", curdir, de->d_name, seglen);
-				#endif // DEBUG
+				fprintf(stdout, "*Каталог:%s\r\n--Вхождение:%s(%dbsz)\r\n", curdir, de->d_name, seglen);
 				delete path;
 			} else
 				fprintf(stderr, "*File:%s\r\n--Чокнутый штолэ? такого вообще-то не бывает в нашем случаеX)!\r\n", de->d_name);

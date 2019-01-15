@@ -28,7 +28,9 @@ const char *names[] =
 	L_PROP_KERNELTAG_ADDR,
 	L_PROP_ROOTFS_ADDR,
 	L_PROP_SECONDFS_ADDR,
+	L_PROP_DBO_ADDR,
 	L_PROP_PAGE_SIZE,
+	L_PROP_DBOHEADER_SIZE,
 	L_MIX_OS_VERSION,
 	L_PROP_NAME,
 	L_PROP_CMDLINE,
@@ -50,7 +52,7 @@ OPT options[NUM_PROPS];
 void Config::SetType(OPT *item, int i)
 {
 	if (i == PROP_KERNEL_ADDR || i == PROP_KERNELTAG_ADDR ||
-	        i == PROP_ROOTFS_ADDR || i == PROP_SECONDFS_ADDR)
+	        i == PROP_ROOTFS_ADDR || i == PROP_SECONDFS_ADDR || i==PROP_DBO_ADDR)
 		item->datatype = TYPE_HEX;
 	else if (i == MIX_OS_VERSION || i == PROP_NAME || i == PROP_CMDLINE || i == PROP_CMDLINE_EX)
 		item->datatype = TYPE_TXT;
@@ -89,7 +91,7 @@ int Config::SetParm(UfNtype *str, const char *list[])
 
 int Config::PackOSVersion(OSV *version)
 {
-	int ver;
+	int ver=0;
 	ver &= ((1 << 11) - 1);
 	ver |= (((version->major & 0x7f) << 25) | ((version->minor & 0x7f) << 18) | ((version->patch & 0x7f) << 11));
 
@@ -130,7 +132,7 @@ void Config::UnpackOSVersion(OSV *version, int packed)
 Config::Config()
 {
 	memset(&ver, 0x00, sizeof (OSV));
-	memset(&it_cfg, 0x00, sizeof (boot_img_hdr));
+	memset(&it_cfg, 0x00, sizeof (droid_boot_header));
 }
 
 Config::~Config()
@@ -180,9 +182,9 @@ int Config::EatTxtConfig(UfNtype *file)
 int Config::EatBinConfig(void *data, unsigned int len)
 {
 	int parlen = 0;
-	boot_img_hdr *curboot = NULL;
+	droid_boot_header *curboot = NULL;
 	if (len >= sizeof (boot_img_hdr))
-		curboot = (boot_img_hdr *) data;
+		curboot = (droid_boot_header *) data;
 	else
 		return 0;
 	//Ручками перетаскиваем каждый параметр
@@ -249,6 +251,19 @@ int Config::EatBinConfig(void *data, unsigned int len)
 		SetType(&options[PROP_NAME], PROP_NAME);
 	}
 
+	if(len==sizeof(droid_boot_header)){
+		if(curboot->header_size>0){
+			sprintf(options[PROP_DBOHADER_SIZE].txtname, "%d", curboot->header_size);
+			options[PROP_DBOHADER_SIZE].len=sizeof(uint32_t);
+			SetType(&options[PROP_DBOHADER_SIZE],PROP_DBOHADER_SIZE);
+		}
+        if(curboot->recovery_dtbo_offset>0){
+			sprintf(options[PROP_DBO_ADDR].txtname, "0x%16lx", curboot->recovery_dtbo_offset);
+		options[PROP_DBO_ADDR].len = sizeof (uint32_t);
+		SetType(&options[PROP_DBO_ADDR], PROP_DBO_ADDR);
+        }
+	}
+
 	int i, counto = 0;
 
 	for (i = 0; i < 8; i++)
@@ -290,9 +305,9 @@ int Config::EatTxtConfig(void *data)
 	return 1;
 }
 
-boot_img_hdr *Config::GetHeader()
+droid_boot_header *Config::GetHeader()
 {
-	memset(&it_cfg, 0x00, sizeof (boot_img_hdr));
+	memset(&it_cfg, 0x00, sizeof (droid_boot_header));
 
 	if (options[PROP_KERNEL_ADDR].len > 0)
 		sscanf(options[PROP_KERNEL_ADDR].txtname, "0x%08x", &it_cfg.kernel_addr);
@@ -326,12 +341,17 @@ boot_img_hdr *Config::GetHeader()
 	if (options[PROP_CMDLINE_EX].len > 0)
 		strncpy((char *) it_cfg.extra_cmdline, options[PROP_CMDLINE_EX].txtname, BOOT_EXTRA_ARGS_SIZE);
 
+	if(options[PROP_DBOHADER_SIZE].len > 0)
+		sscanf(options[PROP_DBOHADER_SIZE].txtname, "%d", &it_cfg.header_size);
+
+	if(options[PROP_DBO_ADDR].len > 0)
+		sscanf(options[PROP_DBO_ADDR].txtname, "0x%16lx", &it_cfg.recovery_dtbo_offset);
+
 	if (options[ID0].len > 0)
 		for (int i = 0; i < 8; i++)
 		{
 			sscanf(&options[ID0].txtname[i * 8], "%08x", &it_cfg.id[i]);
 		}
-
 
 
 	return &it_cfg;

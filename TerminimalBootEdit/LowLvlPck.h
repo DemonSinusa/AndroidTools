@@ -20,6 +20,27 @@
 #define TRUE_SLASH  '/'
 #endif
 
+enum _its_filez {
+    IT_KERNEL_PF=0,				//Необработаное ядро
+    IT_KERNEL_LF,				//Загрузчик ядра
+    IT_KERNEL_GF,				//Сжатое ядро
+    IT_KERNEL_DTBF,				//Таблица смещений ядра
+    IT_KERNEL_F,				//Распакованое ядро
+    IT_ROOTFS_PF,				//Пакованый рутфс
+    IT_RAMFS_DIR,				//Распакованая РутФС
+    IT_SECONDFS_PF,				//Пакованый секондфс
+    IT_DBO_PF,					//?Пакованый dtbo boot v1
+
+    IT_READ_ME,
+    IT_CONFIG,					//Текстовый конфиг
+
+    IT_WORKDIR,					//Рабочий каталог
+    IT_IMAGE,					//Путь до *.img
+
+
+	NUM_ITS
+};
+
 int ReMakeANDCatalogs(char *w_name, char *selfname);
 
 

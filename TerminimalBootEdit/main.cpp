@@ -25,12 +25,7 @@ using namespace std;
 #include "BootUtils.h"
 #include "LowLvlPck.h"
 
-
-char *EnvDir[] = {NULL,
-                  (char *) "zImage", (char *) "ramdisk.cpio.gz",
-                  (char *) "README.txt", (char *) "secondpart.dat",
-                  (char *) "config.conf", (char *) "ramdisk"
-                 };
+char *maindir=NULL;
 
 int main(int argc, char** argv)
 {
@@ -38,15 +33,15 @@ int main(int argc, char** argv)
 	//    struct stat tistic;
 	char *bootimgname = (char *) "boot.img";
 	char *recimgname = (char *) "recovery.img";
-	EnvDir[0] = new char[strlen(argv[0])];
-	strcpy(EnvDir[0], argv[0]);
-	char *poz = strrchr(EnvDir[0], '/');
+	maindir = new char[strlen(argv[0])];
+	strcpy(maindir, argv[0]);
+	char *poz = strrchr(maindir, '/');
 	poz[1] = '\0';
 	//--->
 	WDR += ReMakeANDCatalogs((char *) "WORK_DIR_BOOT", bootimgname);
 	WDR += ReMakeANDCatalogs((char *) "WORK_DIR_RECOVERY", recimgname);
 	//---<
-	delete EnvDir[0];
+	delete maindir;
 
 
 	return 0;

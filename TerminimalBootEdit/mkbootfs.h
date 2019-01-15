@@ -21,7 +21,7 @@ typedef struct _packer_
 	FILE *fh;
 } PCK;
 
-static unsigned int next_inode = 300000;
+
 
 PCK *InitPacker(char *dir, char *afile, unsigned int nsc);
 int CreateList(char *curdir, PCK *p);
