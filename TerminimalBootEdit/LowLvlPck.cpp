@@ -191,7 +191,7 @@ int InOutPorting(char *selfname)
 		}
 		}
 		//Kernel DTB table
-				if (!stat(EnvPath[IT_KERNEL_DTBF], &tistic))
+	if (!stat(EnvPath[IT_KERNEL_DTBF], &tistic))
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
 		{

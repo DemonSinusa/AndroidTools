@@ -217,10 +217,9 @@ int BootUtils::SetBootLoader(char *fname)
 }
 
 void *BootUtils::GetBootLoader(int *len){
-	if (kernel_loader_len == 0)return NULL;
-
 	if (len)
 		*len=kernel_loader_len;
+	if (kernel_loader_len == 0)return NULL;
 
 	return kernel_loader;
 }
@@ -254,10 +253,10 @@ int BootUtils::SetDTBList(char *fname)
 }
 
 void *BootUtils::GetDTBList(int *len){
-	if (kernel_DTB_list_len == 0)return NULL;
-
 	if (len)
 		*len=kernel_DTB_list_len;
+	if (kernel_DTB_list_len == 0)return NULL;
+
 	return kernel_DTB_list;
 }
 
@@ -288,34 +287,38 @@ int BootUtils::SetKernelGz(char *fname){
 		return 0;
 }
 void *BootUtils::GetKernelGz(int *len){
-if (kernel_gz_img_len == 0)
-return NULL;
+if (len) *len=kernel_gz_img_len;
+if (kernel_gz_img_len == 0)return NULL;
 
-if (len)
-*len=kernel_gz_img_len;
-
-	return kernel_gz_img;
+return kernel_gz_img;
 }
 
 int BootUtils::UnCollectKernel(void *kernel,int len){
-	int retval=0,BootloadLen=0,KernelGz=0;
+	int retval=0,BootloadLen=0,KernelGz=0,i=len;
 	char *sig=(char *)kernel;
 
-    while((sig!=NULL)&&(*(unsigned int *)(sig)!=0x00088B1F)){ //gzip сигнатура
+    while(i!=0){
+    if((*(unsigned short *)(sig)==0x8B1F) && (*(sig+2)==0x08))break;	//gzip сигнатура
     sig++;
+    i--;
     BootloadLen++;
     }
     if(BootloadLen>0)retval+=1;
     SetBootLoader(kernel,BootloadLen);
-    while((sig!=NULL)&&*(unsigned int *)(sig)!=0xEDFE0DD0){ //DTB сигнатура
+
+    while(i!=0){
+	if(*(unsigned int *)(sig)==0xEDFE0DD0)break;					//DTB сигнатура
+    i--;
     sig++;
     KernelGz++;
     }
     if(KernelGz>0)retval+=1;
     SetKernelGz(((char *)kernel)+BootloadLen,KernelGz);
 
+
     if(len-KernelGz-BootloadLen>0)retval+=1;
     SetDTBList(sig,len-KernelGz-BootloadLen);
+
 
 	return retval;
 }
