@@ -547,10 +547,19 @@ droid_boot_header *BootUtils::GetCurMainConfig()
 
 void BootUtils::SetCurMainConfig(droid_boot_header *conf)
 {
+uint32_t kernel=boot_h.kernel_size,
+		ramfs=boot_h.ramdisk_size,
+		secondfs=boot_h.second_size,
+		dtbo=boot_h.recovery_dtbo_size,
+		header=boot_h.header_size;
 	if (conf)
 	{
 		wbh = &boot_h;
 		memcpy(wbh, conf, sizeof (droid_boot_header));
+        wbh->header_size=header;
+        wbh->kernel_size=kernel;
+        wbh->ramdisk_size=ramfs;
+        wbh->recovery_dtbo_size=dtbo;
+        wbh->second_size=secondfs;
 	}
 }
-
