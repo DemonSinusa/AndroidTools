@@ -195,7 +195,7 @@ int PackAdata(struct stat *prop, char *data, int datalen, char *pckname, PCK *p)
 
 int CreateList(char *curdir, PCK *p)
 {
-	int itemcount = 0, seglen = 0;
+	int itemcount = 0, seglen=0;
 	char *path = NULL, *buf = NULL;
 	struct stat opt;
 	struct dirent *de;
@@ -225,7 +225,12 @@ int CreateList(char *curdir, PCK *p)
 						delete buf;
 					}
 				}
+				#ifndef DEBUG
 				fprintf(stdout, "*Каталог:%s\r\n--Вхождение:%s(%dbsz)\r\n", curdir, de->d_name, seglen);
+				#else
+				fprintf(stdout, "%s/%s\r\n", curdir, de->d_name);
+				seglen=seglen;
+				#endif
 				delete path;
 			} else
 				fprintf(stderr, "*File:%s\r\n--Чокнутый штолэ? такого вообще-то не бывает в нашем случаеX)!\r\n", de->d_name);

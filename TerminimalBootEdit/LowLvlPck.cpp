@@ -134,7 +134,7 @@ int InOutPorting(char *selfname)
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
 		{
-			char *gzcmd=(char *)"gzip --no-name -9 ";
+			char *gzcmd=(char *)"gzip --no-name ";
 			char *fullcmd = new char[strlen(EnvPath[IT_KERNEL_F]) + strlen(gzcmd)+1];
 			strcpy(fullcmd, gzcmd);
 			strcat(fullcmd, EnvPath[IT_KERNEL_F]);
@@ -232,8 +232,9 @@ int InOutPorting(char *selfname)
 
 			fprintf(stdout, "%s-%d вхождений\r\n", "Припаковано", count);
 
-			fullcmd = new char[strlen(fullpath) + 7];
-			strcpy(fullcmd, "gzip ");
+			char *gzcmd=(char *)"gzip --no-name ";
+			fullcmd = new char[strlen(fullpath) + strlen(gzcmd)+1];
+			strcpy(fullcmd, gzcmd);
 			strcat(fullcmd, fullpath);
 			system(fullcmd);
 			delete fullcmd;
