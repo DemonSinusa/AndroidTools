@@ -23,7 +23,7 @@ using namespace std;
 
 unsigned int next_inode = 300000;
 
-extern char *maindir;
+//extern char *maindir;
 
 char *EnvDir[NUM_ITS];
 char *EnvPath[NUM_ITS];
@@ -333,27 +333,24 @@ int InOutPorting(char *selfname)
 /*
  *
  */
-int ReMakeANDCatalogs(char *w_name, char *selfname)
+int ReMakeANDCatalogs(char *work_dir, char *selfname)
 {
-	char *tpoint = w_name, *wfile = NULL;
+	char *tpoint = work_dir, *wfile = NULL;
 	struct stat tistic;
 	int envlen = 0, tenvlen = 0, retval = 0;
 
 
-	envlen = strlen(maindir);
+	envlen = strlen(selfname);
 
-	wfile = new UfNtype[envlen + strlen(selfname) + 1];
-	strcpy(wfile, maindir);
-	strcat(wfile, selfname);
+	wfile = new UfNtype[envlen + 1];
+	strcpy(wfile, selfname);
+
 
 	InitTargets();
 
-	EnvPath[IT_WORKDIR] = new UfNtype[envlen + strlen(tpoint) + 2];
-	strcpy(EnvPath[IT_WORKDIR], maindir);
-	strcat(EnvPath[IT_WORKDIR], tpoint);
-	envlen = strlen(EnvPath[IT_WORKDIR]);
-	EnvPath[IT_WORKDIR][envlen] = TRUE_SLASH;
-	EnvPath[IT_WORKDIR][envlen + 1] = '\0';
+	EnvPath[IT_WORKDIR]=new UfNtype[strlen(tpoint)+1];
+	strcpy(EnvPath[IT_WORKDIR], tpoint);
+
 
 	mkdir(EnvPath[IT_WORKDIR], 0755);
 
