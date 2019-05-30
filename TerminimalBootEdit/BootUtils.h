@@ -14,11 +14,25 @@
 #ifndef BOOTUTILS_H
 #define BOOTUTILS_H
 
+#define KERNEL_BLK		1
+#define RAMFS_BLK		2
+#define SECONDFS_BLK	3
+
 #define UfNtype char
 
 #include <openssl/sha.h>
 
 typedef struct boot_img_hdr_v1 droid_boot_header;
+
+typedef struct _main_page_block_{
+	char *Loader,*data;
+	int llen,dlen,pcount;
+}MPBLK;
+
+typedef struct _kernel_data_{
+	char *gz,*dtb;
+	int gzsz,dtbsz;
+}Kdata;
 
 class BootUtils
 {
@@ -30,10 +44,15 @@ public:
 	unsigned int static_flen = 0;
 	droid_boot_header *GetCurMainConfig();
 	void SetCurMainConfig(droid_boot_header *conf);
+
+	void SetPageLoader(int BLK,void *dump,int len);
+	int SetPageLoader(int BLK,char *file);
+	void SetPageData(int BLK,void *dump,int len);
+	int SetPageData(int BLK,char *file);
+	void *GetPageLoader(int BLK,int *len);
+	void *GetPageData(int BLK,int *len);
+
 	//4 Kernel only
-	void SetBootLoader(void *dump,int len);
-	int SetBootLoader(char *file);
-	void *GetBootLoader(int *len);
 	void SetDTBList(void *dump, int len);
 	int SetDTBList(char *file);
 	void *GetDTBList(int *len);
@@ -64,15 +83,19 @@ private:
 
 	FILE *boot = NULL;
 	unsigned int PhysOS = 0;
-	int kernel_p_len = 0x00, rootfs_p_len = 0x00, unk_xzblk_p_len = 0x00,dbo_p_len=0x00;
+	MPBLK kernel,root_fs,second_part;
+	Kdata kernel_data;
+
+	int dbo_p_len=0x00;
 	char *kernel_block_lnk = NULL,*rootfs_block_lnk = NULL,\
 		*unk_xzblk_lnk = NULL,*dbo_block_lnk=NULL;
-
-	char *kernel_loader=NULL,*kernel_DTB_list=NULL,*kernel_gz_img=NULL;
-	int kernel_loader_len=0,kernel_DTB_list_len=0,kernel_gz_img_len=0;
-
-	int UnCollectKernel(void *kernel,int len);
-	void *CollectKernel(int *len);
+	//
+	int SpilitPage(int BLK,void *blk,int len);
+	void *GluedPage(int BLK);
+	void FreeInPage(int BLK);
+	//
+	int UnCollectKernelData();
+	int CollectKernelData();
 	bool OpenBFGrab(UfNtype *fname, int offset);
 	void CloseBFile();
 

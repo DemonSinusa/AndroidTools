@@ -10,7 +10,8 @@
 #include <stdarg.h>
 #include <fcntl.h>
 
-#include "android_filesystem_config.h"
+//#include "android_filesystem_config.h"
+#include "FRulezConfigs.h"
 
 #include "mkbootfs.h"
 

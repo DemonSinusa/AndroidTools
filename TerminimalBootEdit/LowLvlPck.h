@@ -26,8 +26,10 @@ enum _its_filez {
     IT_KERNEL_GF,				//Сжатое ядро
     IT_KERNEL_DTBF,				//Таблица смещений ядра
     IT_KERNEL_F,				//Распакованое ядро
+    IT_ROOTFS_LF,				//Загрузчик рутфс
     IT_ROOTFS_PF,				//Пакованый рутфс
     IT_RAMFS_DIR,				//Распакованая РутФС
+    IT_SECONDFS_LF,				//Загрузчик 3-й части
     IT_SECONDFS_PF,				//Пакованый секондфс
     IT_DBO_PF,					//?Пакованый dtbo boot v1
 

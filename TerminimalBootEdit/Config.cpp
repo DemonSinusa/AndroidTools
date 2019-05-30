@@ -244,10 +244,11 @@ int Config::EatBinConfig(void *data, unsigned int len)
 		options[MIX_OS_VERSION].len = strlen(options[MIX_OS_VERSION].txtname);
 		SetType(&options[MIX_OS_VERSION], MIX_OS_VERSION);
 	}
-	if ((parlen = strlen((char *) curboot->name)) != 0)
+	if (*((char *)curboot->name) != '\0')
 	{
-		strncpy(options[PROP_NAME].txtname, (char *) curboot->name, MAX_PARAMETR_LEN);
-		options[PROP_NAME].len = parlen;
+		strncpy(options[PROP_NAME].txtname, (char *) curboot->name, BOOT_NAME_SIZE);
+		//options[PROP_NAME].len = wcstombs(options[PROP_NAME].txtname,(wchar_t *)curboot->name,BOOT_NAME_SIZE);
+		options[PROP_NAME].len=strlen((char *) curboot->name);
 		SetType(&options[PROP_NAME], PROP_NAME);
 	}
 
@@ -332,14 +333,17 @@ droid_boot_header *Config::GetHeader()
 		it_cfg.os_version = PackOSVersion(&ver);
 	}
 
-	if (options[PROP_NAME].len > 0)
-		strncpy((char *) it_cfg.name, options[PROP_NAME].txtname, BOOT_NAME_SIZE);
+	if (options[PROP_NAME].len > 0){
+	//mbtowc((wchar_t *)it_cfg.name,options[PROP_NAME].txtname,BOOT_NAME_SIZE);
+	strncpy((char *)it_cfg.name,options[PROP_NAME].txtname,BOOT_NAME_SIZE);
+	}
+
 
 	if (options[PROP_CMDLINE].len > 0)
-		strncpy((char *) it_cfg.cmdline, options[PROP_CMDLINE].txtname, BOOT_ARGS_SIZE);
+		strncpy((char *)it_cfg.cmdline,options[PROP_CMDLINE].txtname,BOOT_ARGS_SIZE);
 
 	if (options[PROP_CMDLINE_EX].len > 0)
-		strncpy((char *) it_cfg.extra_cmdline, options[PROP_CMDLINE_EX].txtname, BOOT_EXTRA_ARGS_SIZE);
+		strncpy((char *)it_cfg.extra_cmdline,options[PROP_CMDLINE_EX].txtname,BOOT_EXTRA_ARGS_SIZE);
 
 	if(options[PROP_DBOHADER_SIZE].len > 0)
 		sscanf(options[PROP_DBOHADER_SIZE].txtname, "%d", &it_cfg.header_size);

@@ -136,3 +136,86 @@
 	<sys/stat.h>
 	<sys/types.h>
 
+1558512799 source:/home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/BootUtils.cpp
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+
+1540726339 /home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/include/bootimg.h
+	<stdint.h>
+
+1555081647 /home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/BootUtils.h
+	<openssl/sha.h>
+
+1556971566 source:/home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/Config.cpp
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+	"Config.h"
+
+1547302348 /home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/Config.h
+
+1558518395 source:/home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/LowLvlPck.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<sys/stat.h>
+	<unistd.h>
+	<string.h>
+	<bootimg.h>
+	"FRulezConfigs.h"
+	"mkbootfs.h"
+	"BootUtils.h"
+	"LowLvlPck.h"
+	"Config.h"
+
+1547255445 /home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/mkbootfs.h
+
+1555082777 /home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/LowLvlPck.h
+
+1556983403 source:/home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/main.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<sys/stat.h>
+	<sys/unistd.h>
+	<string.h>
+	<bootimg.h>
+	"FRulezConfigs.h"
+	"BootUtils.h"
+	"LowLvlPck.h"
+
+1556977177 source:/home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/mkbootfs.cpp
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<dirent.h>
+	<stdarg.h>
+	<fcntl.h>
+	"FRulezConfigs.h"
+	"mkbootfs.h"
+
+1556651830 /home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/include/android_filesystem_config.h
+	<string.h>
+	<sys/stat.h>
+	<sys/types.h>
+
+1558509829 source:/home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/FRulezConfigs.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	<sys/stat.h>
+	<sys/unistd.h>
+	"FRulezConfigs.h"
+
+1558462739 /home/userdatapodcast/Documents/Coding/MyGitDroid/AndroidTools/TerminimalBootEdit/FRulezConfigs.h
+

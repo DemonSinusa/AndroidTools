@@ -47,6 +47,8 @@
 		<Unit filename="BootUtils.h" />
 		<Unit filename="Config.cpp" />
 		<Unit filename="Config.h" />
+		<Unit filename="FRulezConfigs.cpp" />
+		<Unit filename="FRulezConfigs.h" />
 		<Unit filename="LowLvlPck.cpp" />
 		<Unit filename="LowLvlPck.h" />
 		<Unit filename="main.cpp" />

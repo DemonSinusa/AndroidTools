@@ -15,6 +15,7 @@ using namespace std;
 #include <string.h>
 
 #include <bootimg.h>
+#include "FRulezConfigs.h"
 
 #include "mkbootfs.h"
 #include "BootUtils.h"
@@ -61,7 +62,9 @@ EnvDir[IT_KERNEL_PF]=(char *) "zImage.pck";
 EnvDir[IT_KERNEL_LF]=(char *)"zImageLoader.bin";
 EnvDir[IT_KERNEL_GF]=(char *)"zImage.gz";
 EnvDir[IT_KERNEL_DTBF]=(char *)"zImageDTB.bin";
+EnvDir[IT_ROOTFS_LF]=(char *)"ramdiskLoader.bin";
 EnvDir[IT_ROOTFS_PF]=(char *) "ramdisk.cpio.gz";
+EnvDir[IT_SECONDFS_LF]=(char *)"secondpartLoader.bin";
 EnvDir[IT_SECONDFS_PF]=(char *) "secondpart.dat";
 EnvDir[IT_DBO_PF]=(char *)"dtbo.dat";
 EnvDir[IT_CONFIG]=(char *) "config.conf";
@@ -71,6 +74,7 @@ EnvDir[IT_READ_ME]=(char *) "README.txt";
 EnvDir[IT_RAMFS_DIR]=(char *) "ramdisk";
 EnvDir[IT_KERNEL_F]=(char *)"zImage";
 }
+
 
 int InOutPorting(char *selfname)
 {
@@ -100,6 +104,7 @@ int InOutPorting(char *selfname)
 			{
 				cfg->EatTxtConfig(EnvPath[IT_CONFIG]);
 				bu->SetCurMainConfig(cfg->GetHeader());
+				cfg->WriteCfg(EnvPath[IT_CONFIG]);
 			}
 		}
 	}
@@ -114,7 +119,7 @@ int InOutPorting(char *selfname)
 			cfg->WriteCfg(EnvPath[IT_CONFIG]);
 		}
 	}
-	//===========================Ядро===================================
+	//===========================Ядро===================================*.pck
 	if (!stat(EnvPath[IT_KERNEL_PF], &tistic))
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
@@ -127,10 +132,8 @@ int InOutPorting(char *selfname)
 				}
 			}
 		}
-	}
-	else
-	{
-	if (!stat(EnvPath[IT_KERNEL_F], &tistic))
+	}else{
+	if (!stat(EnvPath[IT_KERNEL_F], &tistic))					//WO_*.ext
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
 		{
@@ -142,6 +145,7 @@ int InOutPorting(char *selfname)
 			delete fullcmd;
 		}
 	}
+	//!Spiliting...
 	//BootLoader
 	if (!stat(EnvPath[IT_KERNEL_LF], &tistic))
 	{
@@ -149,14 +153,14 @@ int InOutPorting(char *selfname)
 		{
 			if (tistic.st_size != 0)
 			{
-				if(bu->SetBootLoader(EnvPath[IT_KERNEL_LF])!=1)
+				if(bu->SetPageLoader(KERNEL_BLK,EnvPath[IT_KERNEL_LF])!=1)
 				{
 					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_KERNEL_LF]);
 				}
 			}
 		}
 	}else{
-		tpoint = (char *) bu->GetBootLoader(&envlen);
+		tpoint = (char *) bu->GetPageLoader(KERNEL_BLK,&envlen);
 		if (envlen > 0)
 		{
 			if ((fh = fopen(EnvPath[IT_KERNEL_LF], "wb")) != NULL)
@@ -167,7 +171,7 @@ int InOutPorting(char *selfname)
 		}
 		}
 		//Kernel gzipped
-		if (!stat(EnvPath[IT_KERNEL_GF], &tistic))
+	if (!stat(EnvPath[IT_KERNEL_GF], &tistic))
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
 		{
@@ -215,6 +219,7 @@ int InOutPorting(char *selfname)
 		}
 		}
 	}
+	//!Spilited!
 	//===========================Ядро===================================
 	//-----------------------------------РутФС----------------------
 	if (!stat(EnvPath[IT_RAMFS_DIR], &tistic))
@@ -224,7 +229,7 @@ int InOutPorting(char *selfname)
 			PCK *pack = NULL;
 			int count = 0;
 			char *thecpio = (char *) "ramdisk.cpio", *fullcmd = NULL;
-			char *fullpath = new char[strlen(thecpio) + strlen(EnvPath[IT_WORKDIR])];
+			char *fullpath = new char[strlen(thecpio) + strlen(EnvPath[IT_WORKDIR])+1];
 			sprintf(fullpath, "%s%s", EnvPath[IT_WORKDIR], thecpio);
 			pack = InitPacker(EnvPath[IT_RAMFS_DIR], fullpath, next_inode);
 			count = CreateList(EnvPath[IT_RAMFS_DIR], pack);
@@ -242,13 +247,40 @@ int InOutPorting(char *selfname)
 		}
 	}
 
+
+	if (!stat(EnvPath[IT_ROOTFS_LF], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFREG))
+		{
+			if (tistic.st_size != 0)
+			{
+				if(bu->SetPageLoader(RAMFS_BLK,EnvPath[IT_ROOTFS_LF])!=1)
+				{
+					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_ROOTFS_LF]);
+				}
+			}
+		}
+	}
+	else
+	{
+		tpoint = (char *) bu->GetPageLoader(RAMFS_BLK,&envlen);
+		if (envlen > 0)
+		{
+			if ((fh = fopen(EnvPath[IT_ROOTFS_LF], "wb")) != NULL)
+			{
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+	}
+
 	if (!stat(EnvPath[IT_ROOTFS_PF], &tistic))
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
 		{
 			if (tistic.st_size != 0)
 			{
-				if(bu->InjROOTFS(EnvPath[IT_ROOTFS_PF])!=1)
+				if(bu->SetPageData(RAMFS_BLK,EnvPath[IT_ROOTFS_PF])!=1)
 				{
 					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_ROOTFS_PF]);
 				}
@@ -257,7 +289,7 @@ int InOutPorting(char *selfname)
 	}
 	else
 	{
-		tpoint = (char *) bu->GetCurROOTFS(&envlen);
+		tpoint = (char *) bu->GetPageData(RAMFS_BLK,&envlen);
 		if (envlen > 0)
 		{
 			if ((fh = fopen(EnvPath[IT_ROOTFS_PF], "wb")) != NULL)
@@ -270,13 +302,38 @@ int InOutPorting(char *selfname)
 	//-------------------------------RootFs----------------
 
 	//Доп ПО
+	if (!stat(EnvPath[IT_SECONDFS_LF], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFREG))
+		{
+			if (tistic.st_size != 0)
+			{
+				if(bu->SetPageLoader(SECONDFS_BLK,EnvPath[IT_SECONDFS_LF])!=1)
+				{
+					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_SECONDFS_LF]);
+				}
+			}
+		}
+	}
+	else
+	{
+		tpoint = (char *) bu->GetPageLoader(SECONDFS_BLK,&envlen);
+		if (envlen > 0)
+		{
+			if ((fh = fopen(EnvPath[IT_SECONDFS_LF], "wb")) != NULL)
+			{
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+	}
 	if (!stat(EnvPath[IT_SECONDFS_PF], &tistic))
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
 		{
 			if (tistic.st_size != 0)
 			{
-				if(bu->InjXZ401(EnvPath[IT_SECONDFS_PF])!=1)
+				if(bu->SetPageData(SECONDFS_BLK,EnvPath[IT_SECONDFS_PF])!=1)
 				{
 					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_SECONDFS_PF]);
 				}
@@ -285,7 +342,7 @@ int InOutPorting(char *selfname)
 	}
 	else
 	{
-		tpoint = (char *) bu->GetCurXZ401(&envlen);
+		tpoint = (char *) bu->GetPageData(SECONDFS_BLK,&envlen);
 		if (envlen > 0)
 		{
 			if ((fh = fopen(EnvPath[IT_SECONDFS_PF], "wb")) != NULL)
@@ -351,8 +408,8 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname)
 	EnvPath[IT_WORKDIR]=new UfNtype[strlen(tpoint)+1];
 	strcpy(EnvPath[IT_WORKDIR], tpoint);
 
-
-	mkdir(EnvPath[IT_WORKDIR], 0755);
+	if(!IsDir(EnvPath[IT_WORKDIR]))
+	mkdir(EnvPath[IT_WORKDIR], 0775);
 
 
 	if (!stat(EnvPath[IT_WORKDIR], &tistic))
@@ -370,16 +427,29 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname)
 			EnvPath[IT_KERNEL_PF] = new UfNtype[tenvlen + 1];
 			strcpy(EnvPath[IT_KERNEL_PF], EnvPath[IT_WORKDIR]);
 			strcat(EnvPath[IT_KERNEL_PF], tpoint);
+
 			tpoint = EnvDir[IT_ROOTFS_PF];
 			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
 			EnvPath[IT_ROOTFS_PF] = new UfNtype[tenvlen + 1];
 			strcpy(EnvPath[IT_ROOTFS_PF], EnvPath[IT_WORKDIR]);
 			strcat(EnvPath[IT_ROOTFS_PF], tpoint);
+			tpoint = EnvDir[IT_ROOTFS_LF];
+			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
+			EnvPath[IT_ROOTFS_LF] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[IT_ROOTFS_LF], EnvPath[IT_WORKDIR]);
+			strcat(EnvPath[IT_ROOTFS_LF], tpoint);
+
 			tpoint = EnvDir[IT_SECONDFS_PF];
 			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
 			EnvPath[IT_SECONDFS_PF] = new UfNtype[tenvlen + 1];
 			strcpy(EnvPath[IT_SECONDFS_PF], EnvPath[IT_WORKDIR]);
 			strcat(EnvPath[IT_SECONDFS_PF], tpoint);
+			tpoint = EnvDir[IT_SECONDFS_LF];
+			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
+			EnvPath[IT_SECONDFS_LF] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[IT_SECONDFS_LF], EnvPath[IT_WORKDIR]);
+			strcat(EnvPath[IT_SECONDFS_LF], tpoint);
+
 			tpoint = EnvDir[IT_CONFIG];
 			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
 			EnvPath[IT_CONFIG] = new UfNtype[tenvlen + 1];
@@ -431,8 +501,10 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname)
 		InOutPorting(wfile);
 	delete wfile;
 	delete EnvPath[IT_KERNEL_PF];
+	delete EnvPath[IT_ROOTFS_LF];
 	delete EnvPath[IT_ROOTFS_PF];
 	delete EnvPath[IT_READ_ME];
+	delete EnvPath[IT_SECONDFS_LF];
 	delete EnvPath[IT_SECONDFS_PF];
 	delete EnvPath[IT_CONFIG];
 	delete EnvPath[IT_WORKDIR];
