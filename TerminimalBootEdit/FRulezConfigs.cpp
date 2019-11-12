@@ -13,9 +13,9 @@ using namespace std;
 #include "FRulezConfigs.h"
 
 extern AFPC *config;
-
-AFPC def_file= {00644,NULL,NULL,NULL,NULL};
-AFPC def_dir= {00755,NULL,NULL,NULL,NULL};
+AUI def_id={(char *)"root",0,NULL};
+AFPC def_file= {00644,&def_id,&def_id,NULL,NULL};
+AFPC def_dir= {00755,&def_id,&def_id,NULL,NULL};
 
 
 bool IsDir(char *path) {
@@ -224,10 +224,10 @@ AUI *ParseIDs(SSIM *ids,int *count) {
 				*count+=1;
 			}
 		} while((g=g->next));
-	def_dir.u_gid=FindByName(root,(char *)"root");
-	def_dir.u_uid=FindByName(root,(char *)"root");;
-	def_file.u_gid=FindByName(root,(char *)"root");;
-	def_file.u_uid=FindByName(root,(char *)"root");;
+//	def_dir.u_gid=FindByName(root,(char *)"root");
+//	def_dir.u_uid=FindByName(root,(char *)"root");;
+//	def_file.u_gid=FindByName(root,(char *)"root");;
+//	def_file.u_uid=FindByName(root,(char *)"root");;
 	return root;
 }
 
@@ -310,15 +310,15 @@ void fs_config(const char *path, int dir,unsigned *uid, unsigned *gid, unsigned 
 				}
 			} while((pc=pc->next));
 		if(!pc) {
-			if(dir)
-				pc=&def_dir;
-			else
-				pc=&def_file;
-		}
+			if(dir)pc=&def_dir;
+			else pc=&def_file;
+
+
+			*mode=0;
+		}else *mode = (*mode & (~07777)) | pc->mode;
 
 		*uid = pc->u_uid->aid;
 		*gid = pc->u_gid->aid;
-		*mode = (*mode & (~07777)) | pc->mode;
 
 		#if 0
 		fprintf(stderr, "< '%s' '%s' %d %d %o >\n",

@@ -52,7 +52,7 @@ char *readme = (char *) "Структура каталогов и принцип
                "Без имен и подписей т.к. OpenSource(к)..\r\n"
                "Полезности vs Ненужности:\r\n"
                "$ cd ramdisk/\r\n"
-               "$ find . | cpio --quiet -o -H newc | gzip > ../ramdisk.cpio.gz\r\n"
+               "$ find * | cpio --owner=0:0 --quiet -o -H newc | gzip > ../ramdisk.cpio.gz\r\n"
                "1.МОД-droid_fs_repacker:при наличии в WORKDIR каталога \"ramdisk/\" запаковывает его в читабельный дройду вид.\r\n"
                "2.МОД-zImage_builder_helper:при наличии годной, необработаной, ядерно-кернеловой вытяжки приложить как zImage.pck и ликовать, после удалить лишнее\r\n";
 
@@ -237,7 +237,8 @@ int InOutPorting(char *selfname)
 
 			fprintf(stdout, "%s-%d вхождений\r\n", "Припаковано", count);
 
-			char *gzcmd=(char *)"gzip --no-name ";
+			char gzcmd[32];
+			sprintf(gzcmd,"gzip -%d %s ",atoi(cfg->GetProp(PROP_RAMGZ_LVL)),"--no-name");
 			fullcmd = new char[strlen(fullpath) + strlen(gzcmd)+1];
 			strcpy(fullcmd, gzcmd);
 			strcat(fullcmd, fullpath);

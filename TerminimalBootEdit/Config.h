@@ -48,6 +48,7 @@ typedef struct _osversion_
 #define    L_PROP_NAME "BOOT_NAME"
 #define    L_PROP_CMDLINE   "KERNEL_CMDLINE"
 #define    L_PROP_CMDLINE_EX "KERNEL_CMDLINE_EX"
+#define    L_PROP_RAMDISK_GZ_LVL	"RAMDISK_GZ_LVL"
 
 #define     L_ID0   "INT_ID_0"
 #define     L_ID1   "INT_ID_1"
@@ -73,6 +74,7 @@ enum RW_var
 	PROP_NAME,
 	PROP_CMDLINE,
 	PROP_CMDLINE_EX,
+	PROP_RAMGZ_LVL,
 
 	ID0,
 	ID1,
@@ -100,6 +102,8 @@ public:
 
 	int WriteCfg(UfNtype *file);
 	droid_boot_header *GetHeader();
+	char *GetProp(int id);
+	short GetType(int id);
 
 private:
 	FILE *fc = NULL;

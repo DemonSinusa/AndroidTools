@@ -26,6 +26,8 @@ int PackFile(char *path, PCK *p)
 	int picesz = 0, dblksz = strlen(path), sotag = 0;
 	char *packpath = new char[dblksz - p->cat_len + 1], *addyprt = NULL;
 	struct stat opt;
+	unsigned int omode=0;
+//	unsigned int ouid=0,ogid=0;
 	FILE *f = NULL;
 	strcpy(packpath, &path[p->cat_len]);
 	//Home virus inside in our brain with little small step ps\|
@@ -33,7 +35,13 @@ int PackFile(char *path, PCK *p)
 		picesz = dblksz - p->cat_len;
 		dblksz = 6 + 8 * 13 + picesz + 1;
 		lstat(path, &opt);
+//		ogid=opt.st_gid;
+//		ouid=opt.st_uid;
+		omode=opt.st_mode;
 		fix_stat(packpath, &opt);
+		if(opt.st_mode==0){		//Нет предустановленой информации
+		opt.st_mode=omode;
+		}
 
 		while ((p->packsize + dblksz + sotag) & 3)
 			sotag++;
@@ -94,12 +102,19 @@ int PackDir(char *path, PCK *p)
 	int picesz = 0, dblksz = strlen(path), sotag = 0;
 	char *packpath = new char[dblksz - p->cat_len + 1], *addyprt = NULL;
 	struct stat opt;
+	unsigned int omode=0;
+//	unsigned int ouid=0,ogid=0;
 	strcpy(packpath, &path[p->cat_len]);
 	picesz = dblksz - p->cat_len;
 	dblksz = 6 + 8 * 13 + picesz + 1;
 	lstat(path, &opt);
+//	ogid=opt.st_gid;
+//	ouid=opt.st_uid;
+	omode=opt.st_mode;
 	fix_stat(packpath, &opt);
-
+	if(opt.st_mode==0){		//Нет предустановленой информации
+		opt.st_mode=omode;
+		}
 	while ((p->packsize + dblksz + sotag) & 3)
 		sotag++;
 	addyprt = new char[dblksz + sotag + 1];
@@ -141,11 +156,17 @@ int PackAdata(struct stat *prop, char *data, int datalen, char *pckname, PCK *p)
 	int picesz = 0, dblksz = 6 + 8 * 13 + namelen + 1, sotag = 0;
 	char *addyprt = NULL;
 	struct stat opt;
+	unsigned int omode=0;
 	if (!prop)
 		memset(&opt, 0x00, sizeof (struct stat));
-	else
-		memcpy(&opt, prop, sizeof (struct stat));
-	fix_stat(pckname, &opt);
+	else{
+			memcpy(&opt, prop, sizeof (struct stat));
+			omode=opt.st_mode;
+			fix_stat(pckname, &opt);
+			if(opt.st_mode==0){		//Нет предустановленой информации
+				opt.st_mode=omode;
+			}
+	}
 
 	while ((p->packsize + dblksz + sotag) & 3)
 		sotag++;
@@ -162,7 +183,7 @@ int PackAdata(struct stat *prop, char *data, int datalen, char *pckname, PCK *p)
 	        0, 						// s.st_uid,
 	        0, 						// s.st_gid,
 	        1, 						// s.st_nlink,
-	        0, 						// s.st_mtime,
+	        (unsigned int)opt.st_mtime, 	// s.st_mtime,
 	        datalen, 				//data len to pack
 	        0, 						// volmajor
 	        0, 						// volminor
@@ -198,7 +219,7 @@ int CreateList(char *curdir, PCK *p)
 {
 	int itemcount = 0, seglen=0;
 	char *path = NULL, *buf = NULL;
-	struct stat opt;
+	struct stat opt,yopt;
 	struct dirent *de;
 	DIR *d;
 
@@ -218,12 +239,15 @@ int CreateList(char *curdir, PCK *p)
 					itemcount++;
 				} else if (de->d_type == DT_LNK) {
 					if (!lstat(path, &opt)) {
-						buf = new char[opt.st_size + 1];
-						memset(buf, 0x00, opt.st_size + 1);
-						readlink(path, buf, opt.st_size);
-						seglen = PackAdata(&opt, buf, opt.st_size, &path[p->cat_len], p);
-						itemcount++;
-						delete buf;
+							if(!stat(path,&yopt)){
+								buf = new char[opt.st_size + 1];
+								memset(buf, 0x00, opt.st_size + 1);
+								readlink(path, buf, opt.st_size);
+								opt.st_mode=yopt.st_mode|__S_IFLNK;
+								seglen = PackAdata(&opt, buf, opt.st_size, &path[p->cat_len], p);
+								itemcount++;
+								delete buf;
+							}
 					}
 				}
 				#ifndef DEBUG
@@ -266,7 +290,9 @@ void FInitPacker(PCK *p)
 {
 	int ffcount = 0;
 	char *dich = (char *) "TRAILER!!!", *sotag = NULL;
-	PackAdata(NULL, NULL, 0, dich, p);
+	struct stat opt;
+	opt.st_mode=420;
+	PackAdata(&opt, NULL, 0, dich, p);
 	//#warning "Эксперементальные рассчеты-приmo4ki"
 	while ((p->packsize + ffcount)& 0xff)
 		ffcount++;

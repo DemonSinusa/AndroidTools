@@ -35,6 +35,7 @@ const char *names[] =
 	L_PROP_NAME,
 	L_PROP_CMDLINE,
 	L_PROP_CMDLINE_EX,
+	L_PROP_RAMDISK_GZ_LVL,
 
 	L_ID0,
 	L_ID1,
@@ -58,6 +59,14 @@ void Config::SetType(OPT *item, int i)
 		item->datatype = TYPE_TXT;
 	else
 		item->datatype = TYPE_INT;
+}
+
+short Config::GetType(int id){
+	OPT titem;
+	if(id<NUM_PROPS){
+	SetType(&titem,id);
+	}else titem.datatype=-1;
+	return titem.datatype;
 }
 
 int Config::SetParm(UfNtype *str, const char *list[])
@@ -190,6 +199,10 @@ int Config::EatBinConfig(void *data, unsigned int len)
 	//Ручками перетаскиваем каждый параметр
 	memset(options, 0x00, sizeof (OPT) * NUM_PROPS);
 
+	sprintf(options[PROP_RAMGZ_LVL].txtname, "%d", 9);
+	options[PROP_RAMGZ_LVL].len = sizeof (uint32_t);
+	SetType(&options[PROP_RAMGZ_LVL], PROP_RAMGZ_LVL);
+
 	if ((parlen = strlen((char *) curboot->cmdline)) != 0)
 	{
 		strncpy(options[PROP_CMDLINE].txtname, (char *) curboot->cmdline, MAX_PARAMETR_LEN);
@@ -286,6 +299,7 @@ int Config::EatTxtConfig(void *data)
 {
 	int len = 0;
 	UfNtype *str = (UfNtype *) data, *src = (UfNtype *) data;
+	SetParm((char *)"RAMDISK_GZ_LVL=9", names);		//Предустановленые невычисляемые параметры
 	while (len < tblklen)
 	{
 		if (src[len] == '\r' || src[len] == '\n')
@@ -365,7 +379,7 @@ int Config::WriteCfg(UfNtype *file)
 {
 	//Выплевывает текстовый конфиг из загруженного ранее
 	FILE *fh = NULL;
-	char str[2048];
+	char *str=NULL;
 	int counter = 0;
 	if ((fh = fopen(file, "wt")) == NULL)
 		return counter;
@@ -374,11 +388,20 @@ int Config::WriteCfg(UfNtype *file)
 	{
 		if (options[i].len > 0)
 		{
+			str =new char[strlen(names[i])+strlen(options[i].txtname)+4];
 			sprintf(str, "%s=%s\r\n", names[i], options[i].txtname);
 			fwrite(str, 1, strlen(str), fh);
+			delete str;
 			counter++;
 		}
 	}
 	fclose(fh);
 	return counter;
+}
+
+char *Config::GetProp(int id){
+	if(block||txtblk){
+			if(id<NUM_PROPS&&options[id].len>0)return options[id].txtname;
+	}
+	return NULL;
 }
