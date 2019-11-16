@@ -146,7 +146,7 @@ int InOutPorting(char *selfname)
 		}
 	}
 	//!Spiliting...
-	//BootLoader
+	//BootLoader MTK kernel
 	if (!stat(EnvPath[IT_KERNEL_LF], &tistic))
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))

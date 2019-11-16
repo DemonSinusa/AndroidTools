@@ -199,6 +199,24 @@ void BootUtils::CloseBFile()
 	}
 }
 
+void BootUtils::SetPageLoader(int BLK,int imglen,char *logo,int lsize){
+	MTKBL mkloder;
+	memset(&mkloder,0xff,sizeof(MTKBL));
+	*(unsigned int *)(mkloder.magic)=0x58881688;
+	mkloder.imagesize=imglen;
+	memset(mkloder.logo,0x00,sizeof(mkloder.logo));
+    strcpy(mkloder.logo,logo);
+
+	MPBLK *dest=&root_fs;
+    if(BLK==KERNEL_BLK)dest=&kernel;
+    else if(BLK==SECONDFS_BLK)dest=&second_part;
+
+	if(dest->llen>0) delete dest->Loader;
+	dest->llen=lsize;
+    dest->Loader=new char[dest->llen];
+    memcpy(dest->Loader,&mkloder,dest->llen);
+}
+
 void BootUtils::SetPageLoader(int BLK,void *dump,int len){
 	if(!dump||len<1)return;
 	MPBLK *dest=&root_fs;
@@ -398,7 +416,11 @@ void *BootUtils::GluedPage(int BLK){
 	    dest->pcount=(dest->dlen+dest->llen+wbh->page_size-1)/wbh->page_size;
 	    if(dest->pcount>1){
 	    block=new char[dest->pcount*wbh->page_size];
-	    if(dest->llen>0)memcpy(block,dest->Loader,dest->llen);
+	    //MTK yobik patch
+	    if(dest->llen>0){
+	    		*(unsigned int *)(&dest->Loader[4])=dest->dlen;
+	    		memcpy(block,dest->Loader,dest->llen);
+	    }
 	    if(dest->dlen>0)memcpy(&block[dest->llen],dest->data,dest->dlen);
 	    ZeroMem(&block[dest->llen+dest->dlen],dest->pcount*wbh->page_size-(dest->llen+dest->dlen));
         if(BLK==KERNEL_BLK){

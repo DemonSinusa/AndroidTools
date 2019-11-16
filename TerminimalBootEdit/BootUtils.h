@@ -24,6 +24,13 @@
 
 typedef struct boot_img_hdr_v1 droid_boot_header;
 
+typedef struct mtk_boot_loader{
+	char magic[4];
+	unsigned int imagesize;
+	char logo[32];
+	char data[0x1d8];
+}MTKBL;
+
 typedef struct _main_page_block_{
 	char *Loader,*data;
 	int llen,dlen,pcount;
@@ -45,6 +52,7 @@ public:
 	droid_boot_header *GetCurMainConfig();
 	void SetCurMainConfig(droid_boot_header *conf);
 
+	void SetPageLoader(int BLK,int imglen,char *logo,int lsize);
 	void SetPageLoader(int BLK,void *dump,int len);
 	int SetPageLoader(int BLK,char *file);
 	void SetPageData(int BLK,void *dump,int len);
