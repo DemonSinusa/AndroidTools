@@ -49,6 +49,8 @@ public:
 	virtual ~BootUtils();
 	char *FullBoot = NULL;
 	unsigned int static_flen = 0;
+	MPBLK kernel,root_fs,second_part;
+	Kdata kernel_data;
 	droid_boot_header *GetCurMainConfig();
 	void SetCurMainConfig(droid_boot_header *conf);
 
@@ -91,11 +93,11 @@ private:
 
 	FILE *boot = NULL;
 	unsigned int PhysOS = 0;
-	MPBLK kernel,root_fs,second_part;
-	Kdata kernel_data;
+
+
 
 	int dbo_p_len=0x00;
-	char *kernel_block_lnk = NULL,*rootfs_block_lnk = NULL,\
+	char *kernel_block_lnk = NULL,*rootfs_block_lnk = NULL,
 		*unk_xzblk_lnk = NULL,*dbo_block_lnk=NULL;
 	//
 	int SpilitPage(int BLK,void *blk,int len);

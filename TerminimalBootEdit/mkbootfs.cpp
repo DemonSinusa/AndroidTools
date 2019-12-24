@@ -239,15 +239,16 @@ int CreateList(char *curdir, PCK *p)
 					itemcount++;
 				} else if (de->d_type == DT_LNK) {
 					if (!lstat(path, &opt)) {
-							if(!stat(path,&yopt)){
-								buf = new char[opt.st_size + 1];
+							buf = new char[opt.st_size + 1];
 								memset(buf, 0x00, opt.st_size + 1);
 								readlink(path, buf, opt.st_size);
+							if(!stat(path,&yopt)){
 								opt.st_mode=yopt.st_mode|__S_IFLNK;
+								}
 								seglen = PackAdata(&opt, buf, opt.st_size, &path[p->cat_len], p);
 								itemcount++;
 								delete buf;
-							}
+
 					}
 				}
 				#ifndef DEBUG
@@ -294,8 +295,8 @@ void FInitPacker(PCK *p)
 	opt.st_mode=420;
 	PackAdata(&opt, NULL, 0, dich, p);
 	//#warning "Эксперементальные рассчеты-приmo4ki"
-	while ((p->packsize + ffcount)& 0xff)
-		ffcount++;
+	while ((p->packsize + ffcount)& 0xff)ffcount++;
+
 	if (ffcount > 0) {
 		sotag = new char[ffcount];
 		memset(sotag, 0x00, ffcount);

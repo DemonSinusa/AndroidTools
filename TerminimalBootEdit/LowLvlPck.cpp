@@ -146,30 +146,6 @@ int InOutPorting(char *selfname)
 		}
 	}
 	//!Spiliting...
-	//BootLoader MTK kernel
-	if (!stat(EnvPath[IT_KERNEL_LF], &tistic))
-	{
-		if (tistic.st_mode & (S_IFMT | S_IFREG))
-		{
-			if (tistic.st_size != 0)
-			{
-				if(bu->SetPageLoader(KERNEL_BLK,EnvPath[IT_KERNEL_LF])!=1)
-				{
-					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_KERNEL_LF]);
-				}
-			}
-		}
-	}else{
-		tpoint = (char *) bu->GetPageLoader(KERNEL_BLK,&envlen);
-		if (envlen > 0)
-		{
-			if ((fh = fopen(EnvPath[IT_KERNEL_LF], "wb")) != NULL)
-			{
-				fwrite(tpoint, envlen, 1, fh);
-				fclose(fh);
-			}
-		}
-		}
 		//Kernel gzipped
 	if (!stat(EnvPath[IT_KERNEL_GF], &tistic))
 	{
@@ -219,6 +195,28 @@ int InOutPorting(char *selfname)
 		}
 		}
 	}
+	//BootLoader MTK kernel
+	char krnl[]="KERNEL";
+	if (!stat(EnvPath[IT_KERNEL_LF], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFREG))
+		{
+			if (tistic.st_size != 0)
+			{
+				bu->SetPageLoader(KERNEL_BLK,bu->kernel_data.dtbsz+bu->kernel_data.gzsz,krnl,0x200);
+			}
+		}
+	}else{
+		tpoint = (char *) bu->GetPageLoader(KERNEL_BLK,&envlen);
+		if (envlen > 0)
+		{
+			if ((fh = fopen(EnvPath[IT_KERNEL_LF], "wb")) != NULL)
+			{
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+		}
 	//!Spilited!
 	//===========================Ядро===================================
 	//-----------------------------------РутФС----------------------
@@ -238,40 +236,13 @@ int InOutPorting(char *selfname)
 			fprintf(stdout, "%s-%d вхождений\r\n", "Припаковано", count);
 
 			char gzcmd[32];
-			sprintf(gzcmd,"gzip -%d %s ",atoi(cfg->GetProp(PROP_RAMGZ_LVL)),"--no-name");
+			sprintf(gzcmd,"gzip %s %s ",cfg->GetProp(PROP_RAMGZ_LVL),"--no-name");
 			fullcmd = new char[strlen(fullpath) + strlen(gzcmd)+1];
 			strcpy(fullcmd, gzcmd);
 			strcat(fullcmd, fullpath);
 			system(fullcmd);
 			delete fullcmd;
 			delete fullpath;
-		}
-	}
-
-
-	if (!stat(EnvPath[IT_ROOTFS_LF], &tistic))
-	{
-		if (tistic.st_mode & (S_IFMT | S_IFREG))
-		{
-			if (tistic.st_size != 0)
-			{
-				if(bu->SetPageLoader(RAMFS_BLK,EnvPath[IT_ROOTFS_LF])!=1)
-				{
-					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_ROOTFS_LF]);
-				}
-			}
-		}
-	}
-	else
-	{
-		tpoint = (char *) bu->GetPageLoader(RAMFS_BLK,&envlen);
-		if (envlen > 0)
-		{
-			if ((fh = fopen(EnvPath[IT_ROOTFS_LF], "wb")) != NULL)
-			{
-				fwrite(tpoint, envlen, 1, fh);
-				fclose(fh);
-			}
 		}
 	}
 
@@ -300,34 +271,34 @@ int InOutPorting(char *selfname)
 			}
 		}
 	}
-	//-------------------------------RootFs----------------
-
-	//Доп ПО
-	if (!stat(EnvPath[IT_SECONDFS_LF], &tistic))
+	//Bootloader MTK
+	char ramfsbl[]="ROOTFS";
+	if (!stat(EnvPath[IT_ROOTFS_LF], &tistic))
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
 		{
 			if (tistic.st_size != 0)
 			{
-				if(bu->SetPageLoader(SECONDFS_BLK,EnvPath[IT_SECONDFS_LF])!=1)
-				{
-					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_SECONDFS_LF]);
-				}
+				bu->SetPageLoader(RAMFS_BLK,bu->root_fs.dlen,ramfsbl,0x200);
 			}
 		}
 	}
 	else
 	{
-		tpoint = (char *) bu->GetPageLoader(SECONDFS_BLK,&envlen);
+		tpoint = (char *) bu->GetPageLoader(RAMFS_BLK,&envlen);
 		if (envlen > 0)
 		{
-			if ((fh = fopen(EnvPath[IT_SECONDFS_LF], "wb")) != NULL)
+			if ((fh = fopen(EnvPath[IT_ROOTFS_LF], "wb")) != NULL)
 			{
 				fwrite(tpoint, envlen, 1, fh);
 				fclose(fh);
 			}
 		}
 	}
+	//-------------------------------RootFs----------------
+
+	//Доп ПО
+
 	if (!stat(EnvPath[IT_SECONDFS_PF], &tistic))
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
@@ -354,7 +325,32 @@ int InOutPorting(char *selfname)
 		}
 	}
 
-	//Dbo
+	char scndfs[]="SECONDFS";
+	if (!stat(EnvPath[IT_SECONDFS_LF], &tistic))
+	{
+		if (tistic.st_mode & (S_IFMT | S_IFREG))
+		{
+			if (tistic.st_size != 0)
+			{
+				bu->SetPageLoader(SECONDFS_BLK,bu->second_part.dlen,scndfs,0x200);
+			}
+		}
+	}
+	else
+	{
+		tpoint = (char *) bu->GetPageLoader(SECONDFS_BLK,&envlen);
+		if (envlen > 0)
+		{
+			if ((fh = fopen(EnvPath[IT_SECONDFS_LF], "wb")) != NULL)
+			{
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+	}
+	//Bootloader MTK
+
+	//---------------------------Dbo---------------------------------
 	if (!stat(EnvPath[IT_DBO_PF], &tistic))
 	{
 		if (tistic.st_mode & (S_IFMT | S_IFREG))
@@ -380,6 +376,7 @@ int InOutPorting(char *selfname)
 			}
 		}
 	}
+//---------------------------Dbo---------------------------------
 
 
 	delete cfg;

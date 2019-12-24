@@ -204,8 +204,9 @@ void BootUtils::SetPageLoader(int BLK,int imglen,char *logo,int lsize){
 	memset(&mkloder,0xff,sizeof(MTKBL));
 	*(unsigned int *)(mkloder.magic)=0x58881688;
 	mkloder.imagesize=imglen;
-	memset(mkloder.logo,0x00,sizeof(mkloder.logo));
+	memset(mkloder.logo,0x00,32);
     strcpy(mkloder.logo,logo);
+    memset(mkloder.data,0xff,0x1d8);
 
 	MPBLK *dest=&root_fs;
     if(BLK==KERNEL_BLK)dest=&kernel;

@@ -55,7 +55,7 @@ void Config::SetType(OPT *item, int i)
 	if (i == PROP_KERNEL_ADDR || i == PROP_KERNELTAG_ADDR ||
 	        i == PROP_ROOTFS_ADDR || i == PROP_SECONDFS_ADDR || i==PROP_DBO_ADDR)
 		item->datatype = TYPE_HEX;
-	else if (i == MIX_OS_VERSION || i == PROP_NAME || i == PROP_CMDLINE || i == PROP_CMDLINE_EX)
+	else if (i == MIX_OS_VERSION || i == PROP_NAME || i == PROP_CMDLINE || i == PROP_CMDLINE_EX || i== PROP_RAMGZ_LVL)
 		item->datatype = TYPE_TXT;
 	else
 		item->datatype = TYPE_INT;
@@ -199,8 +199,8 @@ int Config::EatBinConfig(void *data, unsigned int len)
 	//Ручками перетаскиваем каждый параметр
 	memset(options, 0x00, sizeof (OPT) * NUM_PROPS);
 
-	sprintf(options[PROP_RAMGZ_LVL].txtname, "%d", 9);
-	options[PROP_RAMGZ_LVL].len = sizeof (uint32_t);
+	sprintf(options[PROP_RAMGZ_LVL].txtname, "%s", "-9");
+	options[PROP_RAMGZ_LVL].len = strlen(options[PROP_RAMGZ_LVL].txtname);
 	SetType(&options[PROP_RAMGZ_LVL], PROP_RAMGZ_LVL);
 
 	if ((parlen = strlen((char *) curboot->cmdline)) != 0)
@@ -299,7 +299,7 @@ int Config::EatTxtConfig(void *data)
 {
 	int len = 0;
 	UfNtype *str = (UfNtype *) data, *src = (UfNtype *) data;
-	SetParm((char *)"RAMDISK_GZ_LVL=9", names);		//Предустановленые невычисляемые параметры
+	SetParm((char *)"RAMDISK_GZ_LVL=-9", names);		//Предустановленые невычисляемые параметры
 	while (len < tblklen)
 	{
 		if (src[len] == '\r' || src[len] == '\n')

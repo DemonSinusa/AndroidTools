@@ -155,7 +155,7 @@
 	"FRulezConfigs.h"
 	"mkbootfs.h"
 
-1558512799 source:/home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/BootUtils.cpp
+1576503807 source:/home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/BootUtils.cpp
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
@@ -165,10 +165,10 @@
 1540726339 /home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/include/bootimg.h
 	<stdint.h>
 
-1555081647 /home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/BootUtils.h
+1576489340 /home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/BootUtils.h
 	<openssl/sha.h>
 
-1571332157 source:/home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/Config.cpp
+1576490000 source:/home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/Config.cpp
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
@@ -176,7 +176,7 @@
 	"BootUtils.h"
 	"Config.h"
 
-1571328338 /home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/Config.h
+1573927608 /home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/Config.h
 
 1571234054 source:/home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/FRulezConfigs.cpp
 	<cstdlib>
@@ -190,7 +190,7 @@
 
 1558462739 /home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/FRulezConfigs.h
 
-1571329217 source:/home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/LowLvlPck.cpp
+1576504271 source:/home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/LowLvlPck.cpp
 	<cstdlib>
 	<stdlib.h>
 	<stdio.h>
@@ -220,7 +220,7 @@
 	"BootUtils.h"
 	"LowLvlPck.h"
 
-1571342527 source:/home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/mkbootfs.cpp
+1577182831 source:/home/anton/DATA~CODE/MyGitDroid/AndroidTools/TerminimalBootEdit/mkbootfs.cpp
 	<stdio.h>
 	<stdlib.h>
 	<unistd.h>
