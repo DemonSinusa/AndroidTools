@@ -70,6 +70,7 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset)
 
 	if ((fread(&boot_h, sizeof (boot_img_hdr), 1, boot)) == 1)
 	{
+		printf("Boot header %d version.\r\n",boot_h.header_version);
 		if(boot_h.header_version==1){
 			fread(&((char *)&boot_h)[sizeof (boot_img_hdr)], sizeof(droid_boot_header)-sizeof (boot_img_hdr), 1, boot);
 		}

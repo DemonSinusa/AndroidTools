@@ -43,6 +43,13 @@ enum _its_filez {
 	NUM_ITS
 };
 
+typedef struct _dolbbdtwosa_{
+	char *str;
+	short len,_isdef;
+}HRGA;
+
+
+void UpperCase(char *s);
 int ReMakeANDCatalogs(char *w_name, char *selfname);
 
 

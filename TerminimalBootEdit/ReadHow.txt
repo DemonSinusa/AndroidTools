@@ -1,0 +1,9 @@
+#Unpack CPIO if bad some links
+cd WORK_DIR_XXXX/
+cpio -iduF ramdisk.cpio -D ramdisk/
+
+#Patch
+adb push boot.img /sdcard/
+adb shell dd if=/sdcard/boot.img of=/dev/bootimg
+adb reboot
+

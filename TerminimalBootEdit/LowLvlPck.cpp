@@ -76,6 +76,20 @@ EnvDir[IT_KERNEL_F]=(char *)"zImage";
 }
 
 
+void UpperCase(char *s)
+{
+    int i = 0;
+
+    while(s[i]!='\0')
+    {
+        if(s[i]>='a' && s[i]<='z')
+		{
+            s[i]=s[i]-32;
+        }
+        ++i;
+    }
+}
+
 int InOutPorting(char *selfname)
 {
 	char *tpoint = selfname;
