@@ -13,11 +13,12 @@ using namespace std;
 #include "FRulezConfigs.h"
 
 extern AFPC *config;
-AUI def_id={(char *)"root",0,NULL};
+AUI def_id= {(char *)"root",0,NULL};
 AFPC def_file= {00644,&def_id,&def_id,NULL,NULL};
 AFPC def_dir= {00755,&def_id,&def_id,NULL,NULL};
 
 
+//Если каталог то true
 bool IsDir(char *path) {
 	struct stat tistica;
 	if (!stat(path, &tistica)) {
@@ -30,13 +31,13 @@ bool IsDir(char *path) {
 }
 
 int IsRuleSymb(char *str) {
-	if(*str=='\r'||*str=='\n')
+	if (*str=='\r'||*str=='\n')
 		return 1;
-	if(*str=='/'&&*(str+1)=='*')
+	if (*str=='/'&&*(str+1)=='*')
 		return 2;
-	if((*str=='\\'&&*(str+1)=='\\')||(*str=='/'&&*(str+1)=='/')||(*str==';'))
+	if ((*str=='\\'&&*(str+1)=='\\')||(*str=='/'&&*(str+1)=='/')||(*str==';'))
 		return 3;
-	if(*str=='*'&&*(str+1)=='/')
+	if (*str=='*'&&*(str+1)=='/')
 		return 4;
 	//    if(*str==' '||*str=='\t')return 5;
 	return 0;
@@ -44,7 +45,7 @@ int IsRuleSymb(char *str) {
 
 int otod(int octanum) {
 	int demn=0,i=0,rem=0;
-	while(octanum!=0) {
+	while (octanum!=0) {
 		rem=octanum%10;
 		octanum/=10;
 		demn+=rem*pow(8,i);
@@ -57,8 +58,8 @@ int PassMLComment(char *data) {
 	char *mass=data;
 	int len=2;
 	mass+=len;
-	while(*mass) {
-		if(*mass=='*'&&*(mass+1)=='/')
+	while (*mass) {
+		if (*mass=='*'&&*(mass+1)=='/')
 			break;
 		len++;
 		mass++;
@@ -69,14 +70,14 @@ int PassMLComment(char *data) {
 int PassComment(char *data) {
 	char *mass=data;
 	int len=0;
-	if(*mass==';') {
+	if (*mass==';') {
 		len=1;
 	} else {
 		len=2;
 	}
 	mass+=len;
-	while(*mass) {
-		if(IsRuleSymb(mass)==1)
+	while (*mass) {
+		if (IsRuleSymb(mass)==1)
 			break;
 		mass++;
 		len++;
@@ -87,7 +88,7 @@ int PassComment(char *data) {
 int PassSpacesTab(char *data) {
 	char *temp=data;
 	int len=0;
-	while(*temp&&(*temp==' '||*temp=='\t')) {
+	while (*temp&&(*temp==' '||*temp=='\t')) {
 		len++;
 		temp++;
 	}
@@ -104,20 +105,20 @@ SSIM *DoParse(char *mem) {              //Ôóíêöèþ ïåðåïèñàòü
 	memset(temps,0,sizeof(SSIM));
 	root=temps;
 
-	while(*temp) {
+	while (*temp) {
 
-		if((slen=PassSpacesTab(temp))) {
+		if ((slen=PassSpacesTab(temp))) {
 			//memset(temp,0,slen);
 			temp+=slen;
 			continue;
 		}
-		if(IsRuleSymb(temp)==1) {
+		if (IsRuleSymb(temp)==1) {
 			*temp=0;
 			temp++;
 			continue;
 		}
 
-		if(IsRuleSymb(temp)==2&&!addstr) {
+		if (IsRuleSymb(temp)==2&&!addstr) {
 			slen=PassMLComment(temp);
 			memset(temp,0,2);
 			temps->comtype=MULTILINE_COMMENT;
@@ -127,10 +128,10 @@ SSIM *DoParse(char *mem) {              //Ôóíêöèþ ïåðåïèñàòü
 			temp+=slen+2;
 			addstr=1;
 		}
-		if(IsRuleSymb(temp)==3&&!addstr) {
+		if (IsRuleSymb(temp)==3&&!addstr) {
 			slen=PassComment(temp);
 			temps->comtype=ONELINE_COMMENT;
-			if(*temp==';') {
+			if (*temp==';') {
 				*temp=0;
 				temps->str.len=slen-1;
 				temps->str.str=temp+1;
@@ -142,14 +143,14 @@ SSIM *DoParse(char *mem) {              //Ôóíêöèþ ïåðåïèñàòü
 			temp+=slen;
 			addstr=1;
 		}
-		if(*temp&&!addstr) {
+		if (*temp&&!addstr) {
 			addstr=1;
 			temps->comtype=NONE_COMMENT;
 			temps->str.str=temp;
 			slen=0;
 			aplen=0;
-			while(!IsRuleSymb(temp)) {
-				if(*temp=='\"') {
+			while (!IsRuleSymb(temp)) {
+				if (*temp=='\"') {
 					aplen=strchr(temp+1,'\"')-temp;
 					slen+=aplen+1;
 					temp+=aplen+1;
@@ -161,7 +162,7 @@ SSIM *DoParse(char *mem) {              //Ôóíêöèþ ïåðåïèñàòü
 			temps->str.len=slen;
 		}
 		//------------------------------
-		if(addstr==1) {
+		if (addstr==1) {
 			temps->next=new SSIM;
 			memset(temps->next,0,sizeof(SSIM));
 			temps->next->prev=temps;
@@ -172,7 +173,7 @@ SSIM *DoParse(char *mem) {              //Ôóíêöèþ ïåðåïèñàòü
 
 	}
 
-	if(temps==root)
+	if (temps==root)
 		root=NULL;
 	else
 		temps->prev->next=NULL;
@@ -184,7 +185,7 @@ SSIM *DoParse(char *mem) {              //Ôóíêöèþ ïåðåïèñàòü
 
 void ParseClear(SSIM *root) {
 	SSIM *temp=root;
-	while(root) {
+	while (root) {
 		temp=root;
 		root=root->next;
 		delete temp;
@@ -193,13 +194,13 @@ void ParseClear(SSIM *root) {
 
 AUI *FindByName(AUI *root, char *name) {
 	AUI *cur=root;
-	if(cur&&name)
+	if (cur&&name)
 		do {
-			if(strlen(name)==strlen(cur->name)) {
-				if(strstr(cur->name,name))
+			if (strlen(name)==strlen(cur->name)) {
+				if (strstr(cur->name,name))
 					break;
 			}
-		} while((cur=cur->next));
+		} while ((cur=cur->next));
 	return cur;
 }
 
@@ -207,10 +208,10 @@ AUI *ParseIDs(SSIM *ids,int *count) {
 	SSIM *g=ids;
 	AUI *curg=NULL,*root=NULL;
 	int segmentlength=0;
-	if(g)
+	if (g)
 		do {
-			if(g->comtype==NONE_COMMENT) {
-				if(!root) {
+			if (g->comtype==NONE_COMMENT) {
+				if (!root) {
 					root=curg=new AUI;
 				} else {
 					curg->next=new AUI;
@@ -223,7 +224,7 @@ AUI *ParseIDs(SSIM *ids,int *count) {
 				curg->aid=atoi(&g->str.str[segmentlength+1]);
 				*count+=1;
 			}
-		} while((g=g->next));
+		} while ((g=g->next));
 //	def_dir.u_gid=FindByName(root,(char *)"root");
 //	def_dir.u_uid=FindByName(root,(char *)"root");;
 //	def_file.u_gid=FindByName(root,(char *)"root");;
@@ -239,7 +240,7 @@ int SetAFPC(char *str,int len,AUI *all,AFPC *a) {
 	*pref='\0';
 	pref+=1;
 	pref+=PassSpacesTab(pref);
-	if(*pref=='\"') {
+	if (*pref=='\"') {
 		strchr(pref+1,'\"')[0]='\0';
 		pref+=1;
 	}
@@ -260,7 +261,7 @@ int SetAFPC(char *str,int len,AUI *all,AFPC *a) {
 	c=FindByName(all,grp);
 	a->u_gid=c;
 
-	delete tstr;
+	delete[] tstr;
 	return 0;
 }
 
@@ -268,20 +269,20 @@ AFPC *ParseFS(SSIM *fs,AUI *all,int *count) {
 	SSIM *g=fs;
 	AFPC *curg=NULL,*root=NULL;
 	*count=0;
-	if(g)
+	if (g)
 		do {
-			if(g->comtype==NONE_COMMENT) {
-				if(!root) {
+			if (g->comtype==NONE_COMMENT) {
+				if (!root) {
 					root=curg=new AFPC;
 				} else {
 					curg->next=new AFPC;
 					curg=curg->next;
 				}
 				memset(curg,0,sizeof(AFPC));
-				if(!SetAFPC(g->str.str,g->str.len,all,curg))
+				if (!SetAFPC(g->str.str,g->str.len,all,curg))
 					*count+=1;
 			}
-		} while((g=g->next));
+		} while ((g=g->next));
 	return root;
 }
 
@@ -289,60 +290,60 @@ AFPC *ParseFS(SSIM *fs,AUI *all,int *count) {
 void fs_config(const char *path, int dir,unsigned *uid, unsigned *gid, unsigned *mode) {
 	AFPC *pc=config;
 	int plen=0,len=0;
-		plen = strlen(path);
-		if(pc)
-			do {
-				len = strlen(pc->prefix);
-				if (dir) {
-					if (plen < len)
-						continue;
-					if (!strncmp(pc->prefix, path, len))
-						break;
+	plen = strlen(path);
+	if (pc)
+		do {
+			len = strlen(pc->prefix);
+			if (dir) {
+				if (plen < len)
 					continue;
-				}
-				/* If name ends in * then allow partial matches. */
-				if (pc->prefix[len - 1] == '*') {
-					if (!strncmp(pc->prefix, path, len - 1))
-						break;
-				} else if (plen == len) {
-					if (!strncmp(pc->prefix, path, len))
-						break;
-				}
-			} while((pc=pc->next));
-		if(!pc) {
-			if(dir)pc=&def_dir;
-			else pc=&def_file;
+				if (!strncmp(pc->prefix, path, len))
+					break;
+				continue;
+			}
+			/* If name ends in * then allow partial matches. */
+			if (pc->prefix[len - 1] == '*') {
+				if (!strncmp(pc->prefix, path, len - 1))
+					break;
+			} else if (plen == len) {
+				if (!strncmp(pc->prefix, path, len))
+					break;
+			}
+		} while ((pc=pc->next));
+	if (!pc) {
+		if (dir)pc=&def_dir;
+		else pc=&def_file;
 
 
-			*mode=0;
-		}else *mode = (*mode & (~07777)) | pc->mode;
+		*mode=0;
+	} else *mode = (*mode & (~07777)) | pc->mode;
 
-		*uid = pc->u_uid->aid;
-		*gid = pc->u_gid->aid;
+	*uid = pc->u_uid->aid;
+	*gid = pc->u_gid->aid;
 
-		#if 0
-		fprintf(stderr, "< '%s' '%s' %d %d %o >\n",
-		        path, pc->prefix ? pc->prefix : "", *uid, *gid, *mode);
-		#endif
+#if 0
+	fprintf(stderr, "< '%s' '%s' %d %d %o >\n",
+			path, pc->prefix ? pc->prefix : "", *uid, *gid, *mode);
+#endif
 }
 
 void FreeAIDs(AUI *root) {
 	AUI *uids=root,*rmpr=NULL;
-	if(uids)
+	if (uids)
 		do {
 			rmpr=uids->next;
-			delete uids->name;
+			delete[] uids->name;
 			delete uids;
-		} while((uids=rmpr));
+		} while ((uids=rmpr));
 }
 
 void FreeAFPCs(AFPC *root) {
 	AFPC *files=root,*fmpr=NULL;
-	if(files)
+	if (files)
 		do {
 			fmpr=files->next;
-			delete files->prefix;
+			delete[] files->prefix;
 			delete files;
-		} while((files=fmpr));
+		} while ((files=fmpr));
 }
 

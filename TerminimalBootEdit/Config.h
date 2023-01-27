@@ -22,14 +22,12 @@
 #define TYPE_HEX    2
 #define TYPE_DTIME  3
 
-typedef struct item
-{
+typedef struct item {
 	char txtname[MAX_PARAMETR_LEN];
 	short datatype, len;
 } OPT;
 
-typedef struct _osversion_
-{
+typedef struct _osversion_ {
 	int major,minor,patch;
 	int year,month;
 } OSV;
@@ -43,12 +41,16 @@ typedef struct _osversion_
 #define    L_PROP_PAGE_SIZE "PAGE_SIZE"
 #define    L_PROP_DBOHEADER_SIZE "DBO_HEADER_SIZE"
 
+#define		L_PROP_DTB_ADDR "DTB_ADDRESS"
+#define		L_PROP_DTB_SIZE "DTB_SIZE"
+
 #define    L_MIX_OS_VERSION "OS_VERSION"
 
 #define    L_PROP_NAME "BOOT_NAME"
 #define    L_PROP_CMDLINE   "KERNEL_CMDLINE"
 #define    L_PROP_CMDLINE_EX "KERNEL_CMDLINE_EX"
 #define    L_PROP_RAMDISK_GZ_LVL	"RAMDISK_GZ_LVL"
+#define		L_PROP_BOOT_VERSION		"BOOT_VERSION"
 
 #define     L_ID0   "INT_ID_0"
 #define     L_ID1   "INT_ID_1"
@@ -59,15 +61,16 @@ typedef struct _osversion_
 #define     L_ID6   "INT_ID_6"
 #define     L_ID7   "INT_ID_7"
 
-enum RW_var
-{
+enum RW_var {
 	PROP_KERNEL_ADDR = 0,
 	PROP_KERNELTAG_ADDR,
 	PROP_ROOTFS_ADDR,
 	PROP_SECONDFS_ADDR,
-    PROP_DBO_ADDR,
+	PROP_DBO_ADDR,
 	PROP_PAGE_SIZE,
 	PROP_DBOHADER_SIZE,
+	PROP_DTB_ADDR,
+	PROP_DTB_SIZE,
 
 	MIX_OS_VERSION,
 
@@ -75,6 +78,7 @@ enum RW_var
 	PROP_CMDLINE,
 	PROP_CMDLINE_EX,
 	PROP_RAMGZ_LVL,
+	PROP_BOOT_VERSION,
 
 	ID0,
 	ID1,
@@ -88,35 +92,34 @@ enum RW_var
 	NUM_PROPS
 };
 
-class Config
-{
-public:
-	Config();
-	~Config();
+class Config {
+	public:
+		Config();
+		~Config();
 
-	int EatBinConfig(void *data,unsigned int len);
-	int EatBinConfig(UfNtype *file);
+		int EatBinConfig(void *data,unsigned int len);
+		int EatBinConfig(UfNtype *file);
 
-	int EatTxtConfig(void *data);
-	int EatTxtConfig(UfNtype *file);
+		int EatTxtConfig(void *data);
+		int EatTxtConfig(UfNtype *file);
 
-	int WriteCfg(UfNtype *file);
-	droid_boot_header *GetHeader();
-	char *GetProp(int id);
-	short GetType(int id);
+		int WriteCfg(UfNtype *file);
+		onegen_max_bootheader *GetHeader();
+		char *GetProp(int id);
+		short GetType(int id);
 
-private:
-	FILE *fc = NULL;
-	char *block = NULL, *txtblk = NULL;
-	int blklen = 0, tblklen = 0;
-	droid_boot_header it_cfg;
+	private:
+		FILE *fc = NULL;
+		char *block = NULL, *txtblk = NULL;
+		int blklen = 0, tblklen = 0;
+		onegen_max_bootheader it_cfg;
 
-	OSV ver;
-	int PackOSVersion(OSV *version);
-	void UnpackOSVersion(OSV *version,int packed);
+		OSV ver;
+		int PackOSVersion(OSV *version);
+		void UnpackOSVersion(OSV *version,int packed);
 
-	void SetType(OPT *item, int i);
-	int SetParm(UfNtype *str, const char *list[]);
+		void SetType(OPT *item, int i);
+		int SetParm(UfNtype *str, const char *list[]);
 
 };
 

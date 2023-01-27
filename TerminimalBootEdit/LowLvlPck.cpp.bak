@@ -468,6 +468,7 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname) {
 	if (retval)
 		InOutPorting(wfile);
 	delete[] wfile;
+	delete[] EnvPath[IT_KERNEL_PF];
 	delete[] EnvPath[IT_ROOTFS_LF];
 	delete[] EnvPath[IT_ROOTFS_PF];
 	delete[] EnvPath[IT_READ_ME];
@@ -476,13 +477,11 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname) {
 	delete[] EnvPath[IT_CONFIG];
 	delete[] EnvPath[IT_WORKDIR];
 	delete[] EnvPath[IT_RAMFS_DIR];
+	delete[] EnvPath[IT_DTBO_PF];
 	delete[] EnvPath[IT_KERNEL_F];
-	delete[] EnvPath[IT_KERNEL_PF];
 	delete[] EnvPath[IT_KERNEL_LF];
 	delete[] EnvPath[IT_KERNEL_GF];
 	delete[] EnvPath[IT_KERNEL_DTBF];
-	delete[] EnvPath[IT_DTBO_PF];
-	delete[] EnvPath[IT_DTB_PF];
 	return retval;
 }
 

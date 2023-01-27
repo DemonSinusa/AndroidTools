@@ -16,13 +16,11 @@
 #include "mkbootfs.h"
 
 
-static void fix_stat(const char *path, struct stat *s)
-{
+static void fix_stat(const char *path, struct stat *s) {
 	fs_config(path, S_ISDIR(s->st_mode), &s->st_uid, &s->st_gid, &s->st_mode);
 }
 
-int PackFile(char *path, PCK *p)
-{
+int PackFile(char *path, PCK *p) {
 	int picesz = 0, dblksz = strlen(path), sotag = 0;
 	char *packpath = new char[dblksz - p->cat_len + 1], *addyprt = NULL;
 	struct stat opt;
@@ -39,8 +37,8 @@ int PackFile(char *path, PCK *p)
 //		ouid=opt.st_uid;
 		omode=opt.st_mode;
 		fix_stat(packpath, &opt);
-		if(opt.st_mode==0){		//Нет предустановленой информации
-		opt.st_mode=omode;
+		if (opt.st_mode==0) {		//Нет предустановленой информации
+			opt.st_mode=omode;
 		}
 
 		while ((p->packsize + dblksz + sotag) & 3)
@@ -49,29 +47,29 @@ int PackFile(char *path, PCK *p)
 		addyprt = new char[dblksz + sotag + 1];
 		memset(addyprt, 0x00, dblksz + sotag);
 		sprintf(addyprt, "%06x%08x%08x%08x%08x%08x%08x"
-		        "%08x%08x%08x%08x%08x%08x%08x%s%c",
-		        0x070701,
-		        p->inode_count++, //  s.st_ino,
-		        opt.st_mode,
-		        0, // s.st_uid,
-		        0, // s.st_gid,
-		        1, // s.st_nlink,
-		        (unsigned int) opt.st_mtime, // s.st_mtime,
-		        (unsigned int) opt.st_size, //data len to pack
-		        0, // volmajor
-		        0, // volminor
-		        0, // devmajor
-		        0, // devminor,
-		        picesz + 1, //path in pack len
-		        0,
-		        packpath, //path in pack
-		        0);
+				"%08x%08x%08x%08x%08x%08x%08x%s%c",
+				0x070701,
+				p->inode_count++, //  s.st_ino,
+				opt.st_mode,
+				0, // s.st_uid,
+				0, // s.st_gid,
+				1, // s.st_nlink,
+				(unsigned int) opt.st_mtime, // s.st_mtime,
+				(unsigned int) opt.st_size, //data len to pack
+				0, // volmajor
+				0, // volminor
+				0, // devmajor
+				0, // devminor,
+				picesz + 1, //path in pack len
+				0,
+				packpath, //path in pack
+				0);
 
 		if (fwrite(addyprt, dblksz + sotag, 1, p->fh) == 1) {
 			p->packsize += dblksz + sotag;
 			picesz = sotag;
 			sotag = 0;
-			delete addyprt;
+			delete[] addyprt;
 
 			if (opt.st_size > 0) {
 				while ((p->packsize + opt.st_size + sotag) & 3)
@@ -85,20 +83,19 @@ int PackFile(char *path, PCK *p)
 				fwrite(addyprt, opt.st_size + sotag, 1, p->fh);
 				p->packsize += opt.st_size + sotag;
 
-				delete addyprt;
+				delete[] addyprt;
 			}
 		} else {
-			delete addyprt;
+			delete[] addyprt;
 		}
 		fclose(f);
 	}
-	delete packpath;
+	delete[] packpath;
 
 	return dblksz + picesz + opt.st_size + sotag;
 }
 
-int PackDir(char *path, PCK *p)
-{
+int PackDir(char *path, PCK *p) {
 	int picesz = 0, dblksz = strlen(path), sotag = 0;
 	char *packpath = new char[dblksz - p->cat_len + 1], *addyprt = NULL;
 	struct stat opt;
@@ -112,9 +109,9 @@ int PackDir(char *path, PCK *p)
 //	ouid=opt.st_uid;
 	omode=opt.st_mode;
 	fix_stat(packpath, &opt);
-	if(opt.st_mode==0){		//Нет предустановленой информации
+	if (opt.st_mode==0) {		//Нет предустановленой информации
 		opt.st_mode=omode;
-		}
+	}
 	while ((p->packsize + dblksz + sotag) & 3)
 		sotag++;
 	addyprt = new char[dblksz + sotag + 1];
@@ -122,36 +119,35 @@ int PackDir(char *path, PCK *p)
 
 
 	sprintf(addyprt, "%06x%08x%08x%08x%08x%08x%08x"
-	        "%08x%08x%08x%08x%08x%08x%08x%s%c",
-	        0x070701,
-	        p->inode_count++, 				//  s.st_ino,
-	        opt.st_mode,					//	privelegy
-	        0, 								// s.st_uid,
-	        0, 								// s.st_gid,
-	        1, 								// s.st_nlink,
-	        (unsigned int) opt.st_mtime,	// s.st_mtime,
-	        0, 								//data len to pack
-	        0, 								// volmajor
-	        0, 								// volminor
-	        0, 								// devmajor
-	        0, 								// devminor,
-	        picesz + 1, 					//path in pack len
-	        0,
-	        packpath, 						//path in pack
-	        0);
+			"%08x%08x%08x%08x%08x%08x%08x%s%c",
+			0x070701,
+			p->inode_count++, 				//  s.st_ino,
+			opt.st_mode,					//	privelegy
+			0, 								// s.st_uid,
+			0, 								// s.st_gid,
+			1, 								// s.st_nlink,
+			(unsigned int) opt.st_mtime,	// s.st_mtime,
+			0, 								//data len to pack
+			0, 								// volmajor
+			0, 								// volminor
+			0, 								// devmajor
+			0, 								// devminor,
+			picesz + 1, 					//path in pack len
+			0,
+			packpath, 						//path in pack
+			0);
 
 	if (fwrite(addyprt, dblksz + sotag, 1, p->fh) == 1) {
 		p->packsize += dblksz + sotag;
 	} else
 		dblksz = sotag = 0;
 
-	delete addyprt;
-	delete packpath;
+	delete[] addyprt;
+	delete[] packpath;
 	return dblksz + sotag;
 }
 
-int PackAdata(struct stat *prop, char *data, int datalen, char *pckname, PCK *p)
-{
+int PackAdata(struct stat *prop, char *data, int datalen, char *pckname, PCK *p) {
 	int namelen = strlen(pckname);
 	int picesz = 0, dblksz = 6 + 8 * 13 + namelen + 1, sotag = 0;
 	char *addyprt = NULL;
@@ -159,13 +155,13 @@ int PackAdata(struct stat *prop, char *data, int datalen, char *pckname, PCK *p)
 	unsigned int omode=0;
 	if (!prop)
 		memset(&opt, 0x00, sizeof (struct stat));
-	else{
-			memcpy(&opt, prop, sizeof (struct stat));
-			omode=opt.st_mode;
-			fix_stat(pckname, &opt);
-			if(opt.st_mode==0){		//Нет предустановленой информации
-				opt.st_mode=omode;
-			}
+	else {
+		memcpy(&opt, prop, sizeof (struct stat));
+		omode=opt.st_mode;
+		fix_stat(pckname, &opt);
+		if (opt.st_mode==0) {		//Нет предустановленой информации
+			opt.st_mode=omode;
+		}
 	}
 
 	while ((p->packsize + dblksz + sotag) & 3)
@@ -176,27 +172,27 @@ int PackAdata(struct stat *prop, char *data, int datalen, char *pckname, PCK *p)
 
 
 	sprintf(addyprt, "%06x%08x%08x%08x%08x%08x%08x"
-	        "%08x%08x%08x%08x%08x%08x%08x%s%c",
-	        0x070701,
-	        p->inode_count++, 		// s.st_ino,
-	        opt.st_mode,			//privelegy
-	        0, 						// s.st_uid,
-	        0, 						// s.st_gid,
-	        1, 						// s.st_nlink,
-	        (unsigned int)opt.st_mtime, 	// s.st_mtime,
-	        datalen, 				//data len to pack
-	        0, 						// volmajor
-	        0, 						// volminor
-	        0, 						// devmajor
-	        0, 						// devminor,
-	        namelen + 1, 			//path in pack len
-	        0,
-	        pckname, 				//path in pack
-	        0);
+			"%08x%08x%08x%08x%08x%08x%08x%s%c",
+			0x070701,
+			p->inode_count++, 		// s.st_ino,
+			opt.st_mode,			//privelegy
+			0, 						// s.st_uid,
+			0, 						// s.st_gid,
+			1, 						// s.st_nlink,
+			(unsigned int)opt.st_mtime, 	// s.st_mtime,
+			datalen, 				//data len to pack
+			0, 						// volmajor
+			0, 						// volminor
+			0, 						// devmajor
+			0, 						// devminor,
+			namelen + 1, 			//path in pack len
+			0,
+			pckname, 				//path in pack
+			0);
 
 	if (fwrite(addyprt, dblksz + sotag, 1, p->fh) == 1) {
 		p->packsize += dblksz + sotag;
-		delete addyprt;
+		delete[] addyprt;
 
 		if (datalen > 0) {
 			while ((p->packsize + datalen + picesz) & 3)
@@ -206,17 +202,16 @@ int PackAdata(struct stat *prop, char *data, int datalen, char *pckname, PCK *p)
 			memset(&addyprt[datalen], 0x00, picesz);
 			fwrite(addyprt, datalen + picesz, 1, p->fh);
 			p->packsize += datalen + picesz;
-			delete addyprt;
+			delete[] addyprt;
 		}
 	} else {
-		delete addyprt;
+		delete[] addyprt;
 	}
 
 	return dblksz + sotag + datalen + picesz;
 }
 
-int CreateList(char *curdir, PCK *p)
-{
+int CreateList(char *curdir, PCK *p) {
 	int itemcount = 0, seglen=0;
 	char *path = NULL, *buf = NULL;
 	struct stat opt,yopt;
@@ -239,25 +234,25 @@ int CreateList(char *curdir, PCK *p)
 					itemcount++;
 				} else if (de->d_type == DT_LNK) {
 					if (!lstat(path, &opt)) {
-							buf = new char[opt.st_size + 1];
-								memset(buf, 0x00, opt.st_size + 1);
-								readlink(path, buf, opt.st_size);
-							if(!stat(path,&yopt)){
-								opt.st_mode=yopt.st_mode|__S_IFLNK;
-								}
-								seglen = PackAdata(&opt, buf, opt.st_size, &path[p->cat_len], p);
-								itemcount++;
-								delete buf;
+						buf = new char[opt.st_size + 1];
+						memset(buf, 0x00, opt.st_size + 1);
+						readlink(path, buf, opt.st_size);
+						if (!stat(path,&yopt)) {
+							opt.st_mode=yopt.st_mode|__S_IFLNK;
+						}
+						seglen = PackAdata(&opt, buf, opt.st_size, &path[p->cat_len], p);
+						itemcount++;
+						delete[] buf;
 
 					}
 				}
-				#ifndef DEBUG
+#ifndef DEBUG
 				fprintf(stdout, "*Каталог:%s\r\n--Вхождение:%s(%dbsz)\r\n", curdir, de->d_name, seglen);
-				#else
+#else
 				fprintf(stdout, "%s/%s\r\n", curdir, de->d_name);
 				seglen=seglen;
-				#endif
-				delete path;
+#endif
+				delete[] path;
 			} else
 				fprintf(stderr, "*File:%s\r\n--Чокнутый штолэ? такого вообще-то не бывает в нашем случаеX)!\r\n", de->d_name);
 
@@ -267,8 +262,7 @@ int CreateList(char *curdir, PCK *p)
 	return itemcount;
 }
 
-PCK *InitPacker(char *dir, char *afile, unsigned int nsc)
-{
+PCK *InitPacker(char *dir, char *afile, unsigned int nsc) {
 	PCK *packer = new PCK;
 	packer->cat_len = strlen(dir) + 1;
 	packer->catalog = new char[packer->cat_len];
@@ -276,7 +270,7 @@ PCK *InitPacker(char *dir, char *afile, unsigned int nsc)
 
 
 	if ((packer->fh = fopen(afile, "wt")) == NULL) {
-		delete packer->catalog;
+		delete[] packer->catalog;
 		delete packer;
 		packer = NULL;
 	}
@@ -287,8 +281,7 @@ PCK *InitPacker(char *dir, char *afile, unsigned int nsc)
 	return packer;
 }
 
-void FInitPacker(PCK *p)
-{
+void FInitPacker(PCK *p) {
 	int ffcount = 0;
 	char *dich = (char *) "TRAILER!!!", *sotag = NULL;
 	struct stat opt;
@@ -302,9 +295,9 @@ void FInitPacker(PCK *p)
 		memset(sotag, 0x00, ffcount);
 		fwrite(sotag, ffcount, 1, p->fh);
 		p->packsize += ffcount;
-		delete sotag;
+		delete[] sotag;
 	}
 	fclose(p->fh);
-	delete p->catalog;
+	delete[] p->catalog;
 	delete p;
 }

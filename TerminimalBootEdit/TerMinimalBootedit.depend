@@ -233,3 +233,83 @@
 	"FRulezConfigs.h"
 	"mkbootfs.h"
 
+1674813900 source:/home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/BootUtils.cpp
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+
+1672081920 /home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/include/bootimg.h
+	<stdint.h>
+
+1674812274 /home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/BootUtils.h
+	<openssl/sha.h>
+
+1674809993 source:/home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/Config.cpp
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<bootimg.h>
+	"BootUtils.h"
+	"Config.h"
+
+1674809011 /home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/Config.h
+
+1674804017 source:/home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/FRulezConfigs.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	<sys/stat.h>
+	<sys/unistd.h>
+	"FRulezConfigs.h"
+
+1674804017 /home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/FRulezConfigs.h
+
+1674814855 source:/home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/LowLvlPck.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<sys/stat.h>
+	<unistd.h>
+	<string.h>
+	<bootimg.h>
+	"FRulezConfigs.h"
+	"mkbootfs.h"
+	"BootUtils.h"
+	"LowLvlPck.h"
+	"Config.h"
+
+1674804017 /home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/mkbootfs.h
+
+1674805100 /home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/LowLvlPck.h
+
+1674804017 source:/home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/main.cpp
+	<cstdlib>
+	<stdlib.h>
+	<stdio.h>
+	<errno.h>
+	<ctype.h>
+	<sys/stat.h>
+	<sys/unistd.h>
+	<string.h>
+	<bootimg.h>
+	"FRulezConfigs.h"
+	"BootUtils.h"
+	"LowLvlPck.h"
+
+1674804017 source:/home/anton/Git/TMbE/AndroidTools/TerminimalBootEdit/mkbootfs.cpp
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<string.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<dirent.h>
+	<stdarg.h>
+	<fcntl.h>
+	"FRulezConfigs.h"
+	"mkbootfs.h"
+

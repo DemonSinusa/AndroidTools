@@ -83,18 +83,14 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 			root_fs.pcount = (boot_h.ramdisk_size + boot_h.page_size - 1) / boot_h.page_size;
 			second_part.pcount = (boot_h.second_size + boot_h.page_size - 1) / boot_h.page_size;
 			dtbo_p_len=(boot_h.recovery_dtbo_size+boot_h.page_size-1)/boot_h.page_size;
-			dtb_p_len=(boot_h.dtb_size+boot_h.page_size-1)/boot_h.page_size;
 
 			InjKernel(bootdump,boot_h.kernel_size);
 			InjROOTFS(&bootdump[kernel.pcount * boot_h.page_size],boot_h.ramdisk_size);
 			if (boot_h.second_size > 0) {
-				InjXZ401(&bootdump[(kernel.pcount+root_fs.pcount)*boot_h.page_size],boot_h.second_size);
+				InjXZ401(&bootdump[kernel.pcount * boot_h.page_size+root_fs.pcount * boot_h.page_size],boot_h.second_size);
 			}
 			if (boot_h.recovery_dtbo_size>0) {
-				InjDtbo(&bootdump[(kernel.pcount+root_fs.pcount+second_part.pcount)*boot_h.page_size],boot_h.recovery_dtbo_size);
-			}
-			if(boot_h.dtb_size>0){
-				InjDtb(&bootdump[(kernel.pcount+root_fs.pcount+second_part.pcount+dtbo_p_len)*boot_h.page_size],boot_h.dtb_size);
+				InjDtbo(&bootdump[kernel.pcount * boot_h.page_size+root_fs.pcount * boot_h.page_size+second_part.pcount * boot_h.page_size],boot_h.recovery_dtbo_size);
 			}
 
 			delete[] bootdump;

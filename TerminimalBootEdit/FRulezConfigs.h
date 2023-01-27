@@ -10,28 +10,28 @@ extern "C" {
 #define ONELINE_COMMENT         2
 
 typedef struct _str_in_mem {
-    char *str;
-    int len;
+	char *str;
+	int len;
 } SIM;
 
 typedef struct _strs_in_mem {
-    SIM str;
-    char comtype;
-    struct _strs_in_mem *next,*prev;
+	SIM str;
+	char comtype;
+	struct _strs_in_mem *next,*prev;
 } SSIM;
 
 typedef struct android_uid_info {
-    char *name;
-    unsigned aid;
-    struct android_uid_info *next;
-}AUI;
+	char *name;
+	unsigned aid;
+	struct android_uid_info *next;
+} AUI;
 
 typedef struct android_fs_path_config {
-    unsigned mode;
-    AUI *u_uid,*u_gid;
-    char *prefix;
+	unsigned mode;
+	AUI *u_uid,*u_gid;
+	char *prefix;
 	struct android_fs_path_config *next;
-}AFPC;
+} AFPC;
 
 
 
