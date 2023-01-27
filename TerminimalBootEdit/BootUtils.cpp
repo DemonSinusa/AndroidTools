@@ -66,7 +66,8 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 
 	if ((fread(&boot_h, sizeof (boot_img_hdr), 1, boot)) == 1) {
 		printf("Boot header %d version.\r\n",boot_h.header_version);
-		if (boot_h.header_version>0) {
+
+		if (boot_h.header_version>0&&boot_h.header_version<=hdr_ver_max) {
 			if(boot_h.header_version==1)
 			fread(&((char *)&boot_h)[sizeof (boot_img_hdr)], sizeof(struct boot_img_hdr_v1)-sizeof (boot_img_hdr), 1, boot);
 			else fread(&((char *)&boot_h)[sizeof (boot_img_hdr)], sizeof(struct boot_img_hdr_v2)-sizeof (boot_img_hdr), 1, boot);
@@ -82,19 +83,26 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 			kernel.pcount = (boot_h.kernel_size + boot_h.page_size - 1) / boot_h.page_size;
 			root_fs.pcount = (boot_h.ramdisk_size + boot_h.page_size - 1) / boot_h.page_size;
 			second_part.pcount = (boot_h.second_size + boot_h.page_size - 1) / boot_h.page_size;
+
+			if(boot_h.header_version>hdr_ver_max)dt_p_len=(boot_h.header_version+boot_h.page_size-1)/boot_h.page_size;
+			else{
 			dtbo_p_len=(boot_h.recovery_dtbo_size+boot_h.page_size-1)/boot_h.page_size;
 			dtb_p_len=(boot_h.dtb_size+boot_h.page_size-1)/boot_h.page_size;
+			}
 
 			InjKernel(bootdump,boot_h.kernel_size);
 			InjROOTFS(&bootdump[kernel.pcount * boot_h.page_size],boot_h.ramdisk_size);
 			if (boot_h.second_size > 0) {
 				InjXZ401(&bootdump[(kernel.pcount+root_fs.pcount)*boot_h.page_size],boot_h.second_size);
 			}
-			if (boot_h.recovery_dtbo_size>0) {
+			if(boot_h.header_version>hdr_ver_max)InjDTree(&bootdump[(kernel.pcount+root_fs.pcount+second_part.pcount)*boot_h.page_size],boot_h.header_version);
+			else{
+					if (boot_h.recovery_dtbo_size>0) {
 				InjDtbo(&bootdump[(kernel.pcount+root_fs.pcount+second_part.pcount)*boot_h.page_size],boot_h.recovery_dtbo_size);
 			}
 			if(boot_h.dtb_size>0){
 				InjDtb(&bootdump[(kernel.pcount+root_fs.pcount+second_part.pcount+dtbo_p_len)*boot_h.page_size],boot_h.dtb_size);
+			}
 			}
 
 			delete[] bootdump;
@@ -125,8 +133,11 @@ void BootUtils::CloseBFile() {
 
 		bootlen += second_part.pcount * wbh->page_size; //Second stage
 
-		bootlen+=dtbo_p_len*wbh->page_size;
-
+		if(wbh->header_version>hdr_ver_max)bootlen+=dt_p_len*wbh->page_size;
+		else{
+				bootlen+=dtbo_p_len*wbh->page_size;
+				bootlen+=dtb_p_len*wbh->page_size;
+		}
 		static_flen = bootlen;
 
 
@@ -140,18 +151,25 @@ void BootUtils::CloseBFile() {
 				ZeroMem(wbh->id, sizeof (wbh->id));
 
 				SHA1_Init(&ctx);
+
 				SHA1_Update(&ctx, kernel_block_lnk, wbh->kernel_size);
 				SHA1_Update(&ctx, &wbh->kernel_size, sizeof (wbh->kernel_size));
 				SHA1_Update(&ctx, rootfs_block_lnk, wbh->ramdisk_size);
 				SHA1_Update(&ctx, &wbh->ramdisk_size, sizeof (wbh->ramdisk_size));
 				SHA1_Update(&ctx, unk_xzblk_lnk, wbh->second_size);
 				SHA1_Update(&ctx, &wbh->second_size, sizeof (wbh->second_size));
+
+				if(wbh->header_version>hdr_ver_max){
+					SHA1_Update(&ctx, dt_block_lnk, wbh->header_version);
+					SHA1_Update(&ctx, &wbh->header_version, sizeof (wbh->header_version));
+				}else{
 				if (wbh->header_version>0) {
 					SHA1_Update(&ctx, dtbo_block_lnk, wbh->recovery_dtbo_size);
 					SHA1_Update(&ctx, &wbh->recovery_dtbo_size, sizeof (wbh->recovery_dtbo_size));
 				if(wbh->header_version>1){
 					SHA1_Update(&ctx,dtb_block_lnk,wbh->dtb_size);
 					SHA1_Update(&ctx,&wbh->dtb_size,sizeof(wbh->dtb_size));
+				}
 				}
 				}
 				sha = SHA1_Final(hash, &ctx);
@@ -172,7 +190,10 @@ void BootUtils::CloseBFile() {
 						   unk_xzblk_lnk, wbh->second_size);
 
 //Поправки на версии бутов
-				if(wbh->header_version>0){
+				if(wbh->header_version>hdr_ver_max){
+						memcpy(&FullBoot[(kernel.pcount + root_fs.pcount+second_part.pcount + 1) * boot_h.page_size + PhysOS],
+							   dt_block_lnk, wbh->header_version);
+				}else{
 				if (wbh->header_version==1) {
 					memcpy(&FullBoot[ PhysOS+sizeof (boot_img_hdr)], &((char *)wbh)[sizeof (boot_img_hdr)], sizeof(struct boot_img_hdr_v1)-sizeof (boot_img_hdr));
 					if (dtbo_p_len>0)
@@ -620,6 +641,38 @@ int BootUtils::InjXZ401(char *fname) {
 		return 0;
 }
 
+int BootUtils::InjDTree(void *dump,int len){
+	if (!dump||len<1)return 0;
+
+	wbh->header_version=len;
+
+	dt_p_len=(len + boot_h.page_size - 1) / boot_h.page_size;
+	if (dt_block_lnk!=NULL)
+		delete[] dt_block_lnk;
+	dt_block_lnk=new char[len];
+//    ZeroMem(dbo_block_lnk,len);
+	memcpy(dt_block_lnk,dump,len);
+	return 1;
+}
+
+int BootUtils::InjDTree(char *fname){
+	FILE *fh=NULL;
+	char *data=NULL;
+	int datalen=0;
+	if ((fh = fopen(fname, "rb")) != NULL) {
+		fseek(fh, 0, SEEK_END);
+		datalen = ftell(fh);
+		data = new char[datalen];
+		fseek(fh, 0, SEEK_SET);
+		if (fread(data, datalen, 1, fh)==1)
+			InjDTree(data, datalen);
+		delete[] data;
+		fclose(fh);
+		return 1;
+	} else
+		return 0;
+}
+
 int BootUtils::InjDtbo(void *dump,int len) {
 	if (!dump||len<1)return 0;
 
@@ -707,6 +760,19 @@ void *BootUtils::GetCurXZ401(int *len) {
 	if (len)
 		*len = wbh->second_size;
 	return unk_xzblk_lnk;
+}
+
+void *BootUtils::GetDTree(int *len){
+	if (wbh==NULL)return NULL;
+
+	if (len&&wbh->header_version>hdr_ver_max){
+		*len=wbh->header_version;
+		dt_p_len=(wbh->header_version + boot_h.page_size - 1) / boot_h.page_size;
+	}else{
+		*len=0;
+		 return NULL;
+	}
+	return dt_block_lnk;
 }
 
 void *BootUtils::GetDtbo(int *len) {

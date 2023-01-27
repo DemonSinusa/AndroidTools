@@ -66,6 +66,7 @@ void InitTargets() {
 	EnvDir[IT_ROOTFS_PF]=(char *) "ramdisk.cpio.gz";
 	EnvDir[IT_SECONDFS_LF]=(char *)"secondpartLoader.bin";
 	EnvDir[IT_SECONDFS_PF]=(char *) "secondpart.dat";
+	EnvDir[IT_DEVTREE]=(char *)"DevTree.dat";
 	EnvDir[IT_DTBO_PF]=(char *)"dtbo.dat";
 	EnvDir[IT_DTB_PF]=(char *)"dtb.dat";
 	EnvDir[IT_CONFIG]=(char *) "config.conf";
@@ -303,7 +304,24 @@ int InOutPorting(char *selfname) {
 		}
 	}
 	//Bootloader MTK
-
+		//---------------------------DeviceTree---------------------------------
+	if (!stat(EnvPath[IT_DEVTREE], &tistic)) {
+		if (tistic.st_mode & (S_IFMT | S_IFREG)) {
+			if (tistic.st_size != 0) {
+				if (bu->InjDTree(EnvPath[IT_DEVTREE])!=1) {
+					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_DEVTREE]);
+				}
+			}
+		}
+	} else {
+		tpoint = (char *) bu->GetDTree(&envlen);
+		if (envlen > 0) {
+			if ((fh = fopen(EnvPath[IT_DEVTREE], "wb")) != NULL) {
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+	}
 	//---------------------------Dtbo---------------------------------
 	if (!stat(EnvPath[IT_DTBO_PF], &tistic)) {
 		if (tistic.st_mode & (S_IFMT | S_IFREG)) {
@@ -447,6 +465,12 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname) {
 			strcpy(EnvPath[IT_KERNEL_DTBF], EnvPath[IT_WORKDIR]);
 			strcat(EnvPath[IT_KERNEL_DTBF], tpoint);
 
+			tpoint = EnvDir[IT_DEVTREE];
+			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
+			EnvPath[IT_DEVTREE] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[IT_DEVTREE], EnvPath[IT_WORKDIR]);
+			strcat(EnvPath[IT_DEVTREE], tpoint);
+
 			tpoint=EnvDir[IT_DTBO_PF];
 			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
 			EnvPath[IT_DTBO_PF] = new UfNtype[tenvlen + 1];
@@ -481,6 +505,7 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname) {
 	delete[] EnvPath[IT_KERNEL_LF];
 	delete[] EnvPath[IT_KERNEL_GF];
 	delete[] EnvPath[IT_KERNEL_DTBF];
+	delete[] EnvPath[IT_DEVTREE];
 	delete[] EnvPath[IT_DTBO_PF];
 	delete[] EnvPath[IT_DTB_PF];
 	return retval;

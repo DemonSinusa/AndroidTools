@@ -18,6 +18,8 @@
 #define RAMFS_BLK		2
 #define SECONDFS_BLK	3
 
+#define hdr_ver_max		8
+
 #define UfNtype char
 
 #include <openssl/sha.h>
@@ -77,6 +79,8 @@ class BootUtils {
 		int InjROOTFS(char *fname);
 		int InjXZ401(void *dump, int len);
 		int InjXZ401(char *fname);
+		int InjDTree(void *dump,int len);
+		int InjDTree(char *fname);
 		int InjDtbo(void *dump,int len);
 		int InjDtbo(char *fname);
 		int InjDtb(void *dump,int len);
@@ -84,6 +88,7 @@ class BootUtils {
 		void *GetCurKernel(int *len);
 		void *GetCurROOTFS(int *len);
 		void *GetCurXZ401(int *len);
+		void *GetDTree(int *len);
 		void *GetDtbo(int *len);
 		void *GetDtb(int *len);
 	private:
@@ -99,10 +104,10 @@ class BootUtils {
 
 
 
-		int dtbo_p_len=0x00,dtb_p_len=0x00;
+		int dt_p_len=0x00,dtbo_p_len=0x00,dtb_p_len=0x00;
 		char *kernel_block_lnk = NULL,*rootfs_block_lnk = NULL,
-			  *unk_xzblk_lnk = NULL,*dtbo_block_lnk=NULL,
-			  *dtb_block_lnk=NULL;
+			  *unk_xzblk_lnk = NULL,*dt_block_lnk=NULL,
+			  *dtbo_block_lnk=NULL,*dtb_block_lnk=NULL;
 		//
 		int SpilitPage(int BLK,void *blk,int len);
 		void *GluedPage(int BLK);

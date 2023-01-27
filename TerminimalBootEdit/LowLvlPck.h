@@ -31,6 +31,7 @@ enum _its_filez {
 	IT_RAMFS_DIR,				//Распакованая РутФС
 	IT_SECONDFS_LF,				//Загрузчик 3-й части
 	IT_SECONDFS_PF,				//Пакованый секондфс
+	IT_DEVTREE,					//Device Tree для некоторых девайсов
 	IT_DTBO_PF,					//?Пакованый dtbo boot v1
 	IT_DTB_PF,					//Пакованный dtb boot v2
 
