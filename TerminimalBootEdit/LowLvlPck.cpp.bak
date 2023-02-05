@@ -39,8 +39,10 @@ char *readme = (char *) "Структура каталогов и принцип
 			   "2.zImage не сжатый в *.gz сожмет, к сжатому zImageLoader.bin|&|zImageDTB.bin при наличии приплетёт, едем дальше..\r\n"
 			   "3.ramdisk/ каталог в ramdisk.cpio перепишет и в *.gz пережмет добавив к прожекту и дальше попрет...\r\n"
 			   "4.secondpart не встречал и что за зверь я не знаю потому secondpart.dat при наличии ессно добавит и перейдем к boot -v1\r\n"
-			   "5.dtbo приобщенное к *.img не встречал но если в config.conf прострелит параметр DBO_ADDRESS && DBO_HEADER_SIZE то пздравляю у Вас бут №1-(рас)\r\n"
-			   "а если и есть то подходит ли каждый из них под описание, которое ниже и общее для понимания:\r\n"
+			   "5.dtbo приобщенное к *.img не встречал но если в config.conf прострелит параметр DBO_ADDRESS && DBO_HEADER_SIZE то пздравляю у Вас бут №1-(рас)\"могёт и умеет так Ж №2-(второй)\"\r\n"
+			   "6.корявый boot_version принемает и DeviceTree.dat приклеит к ядру и как надо,а в прочем хз,надо ли так... "
+			   "7.boot_version стал полноценным параметром конфиуряецца и работает вродебы. Воот... \"Но если карявый то это размер &ниипет&.\""
+			   "а если и есть что-то иное, то должно подходить и каждое \"это\" под описание, которое ниже и общее для понимания:\r\n"
 			   "-Нулевой размер не изменяет содержимое в boot.img оригинальном иначе-иначе -^\r\n"
 			   "-Отсутствие нужных онных требует наличие работоспособного бута для их появления без лишних пустышек..\r\n"
 			   "Что умеет: \r\n"
@@ -54,7 +56,9 @@ char *readme = (char *) "Структура каталогов и принцип
 			   "$ cd ramdisk/\r\n"
 			   "$ find * | cpio --owner=0:0 --quiet -o -H newc | gzip > ../ramdisk.cpio.gz\r\n"
 			   "1.МОД-droid_fs_repacker:при наличии в WORKDIR каталога \"ramdisk/\" запаковывает его в читабельный дройду вид.\r\n"
-			   "2.МОД-zImage_builder_helper:при наличии годной, необработаной, ядерно-кернеловой вытяжки приложить как zImage.pck и ликовать, после удалить лишнее\r\n";
+			   "2.МОД-zImage_builder_helper:при наличии годной, необработаной, ядерно-кернеловой вытяжки приложить как zImage.pck и ликовать, после удалить лишнее\r\n\r\n"
+			   "Эксперементальные параметры:\r\n"
+			   "\"CPIO_PACK_BLOCK_ALIGN=0xHEX\"-использовать выравнивание размера пакуемого из каталога cpio на указанное значение.\r\n";
 
 
 void InitTargets() {
@@ -66,6 +70,7 @@ void InitTargets() {
 	EnvDir[IT_ROOTFS_PF]=(char *) "ramdisk.cpio.gz";
 	EnvDir[IT_SECONDFS_LF]=(char *)"secondpartLoader.bin";
 	EnvDir[IT_SECONDFS_PF]=(char *) "secondpart.dat";
+	EnvDir[IT_DEVTREE]=(char *)"DevTree.dat";
 	EnvDir[IT_DTBO_PF]=(char *)"dtbo.dat";
 	EnvDir[IT_DTB_PF]=(char *)"dtb.dat";
 	EnvDir[IT_CONFIG]=(char *) "config.conf";
@@ -303,7 +308,24 @@ int InOutPorting(char *selfname) {
 		}
 	}
 	//Bootloader MTK
-
+		//---------------------------DeviceTree---------------------------------
+	if (!stat(EnvPath[IT_DEVTREE], &tistic)) {
+		if (tistic.st_mode & (S_IFMT | S_IFREG)) {
+			if (tistic.st_size != 0) {
+				if (bu->InjDTree(EnvPath[IT_DEVTREE])!=1) {
+					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_DEVTREE]);
+				}
+			}
+		}
+	} else {
+		tpoint = (char *) bu->GetDTree(&envlen);
+		if (envlen > 0) {
+			if ((fh = fopen(EnvPath[IT_DEVTREE], "wb")) != NULL) {
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+	}
 	//---------------------------Dtbo---------------------------------
 	if (!stat(EnvPath[IT_DTBO_PF], &tistic)) {
 		if (tistic.st_mode & (S_IFMT | S_IFREG)) {
@@ -447,6 +469,12 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname) {
 			strcpy(EnvPath[IT_KERNEL_DTBF], EnvPath[IT_WORKDIR]);
 			strcat(EnvPath[IT_KERNEL_DTBF], tpoint);
 
+			tpoint = EnvDir[IT_DEVTREE];
+			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
+			EnvPath[IT_DEVTREE] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[IT_DEVTREE], EnvPath[IT_WORKDIR]);
+			strcat(EnvPath[IT_DEVTREE], tpoint);
+
 			tpoint=EnvDir[IT_DTBO_PF];
 			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
 			EnvPath[IT_DTBO_PF] = new UfNtype[tenvlen + 1];
@@ -468,7 +496,6 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname) {
 	if (retval)
 		InOutPorting(wfile);
 	delete[] wfile;
-	delete[] EnvPath[IT_KERNEL_PF];
 	delete[] EnvPath[IT_ROOTFS_LF];
 	delete[] EnvPath[IT_ROOTFS_PF];
 	delete[] EnvPath[IT_READ_ME];
@@ -477,11 +504,14 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname) {
 	delete[] EnvPath[IT_CONFIG];
 	delete[] EnvPath[IT_WORKDIR];
 	delete[] EnvPath[IT_RAMFS_DIR];
-	delete[] EnvPath[IT_DTBO_PF];
 	delete[] EnvPath[IT_KERNEL_F];
+	delete[] EnvPath[IT_KERNEL_PF];
 	delete[] EnvPath[IT_KERNEL_LF];
 	delete[] EnvPath[IT_KERNEL_GF];
 	delete[] EnvPath[IT_KERNEL_DTBF];
+	delete[] EnvPath[IT_DEVTREE];
+	delete[] EnvPath[IT_DTBO_PF];
+	delete[] EnvPath[IT_DTB_PF];
 	return retval;
 }
 

@@ -52,6 +52,77 @@ BootUtils::~BootUtils() {
 	delete[] Bimgname;
 }
 
+
+int BootUtils::detect_hash_type(boot_img_hdr_v2 *hdr)
+{
+    // sha1 is expected to have zeroes in id[20] and higher
+    // offset by 4 to accomodate bootimg variants with BOOT_NAME_SIZE 20
+    uint8_t id[SHA256_DIGEST_LENGTH];
+    memcpy(&id, hdr->id, sizeof(id));
+    int i;
+    for(i = SHA_DIGEST_LENGTH + 4; i < SHA256_DIGEST_LENGTH; ++i) {
+        if(id[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+void BootUtils::generate_id_sha1(void *kernel_data, void *ramdisk_data,
+                      void *second_data, void *dt_data, void *recovery_dtbo_data, void *dtb_data)
+{
+    SHA_CTX ctx;
+
+    SHA1_Init(&ctx);
+    SHA1_Update(&ctx, kernel_data, wbh->kernel_size);
+    SHA1_Update(&ctx, &wbh->kernel_size, sizeof(wbh->kernel_size));
+    SHA1_Update(&ctx, ramdisk_data, wbh->ramdisk_size);
+    SHA1_Update(&ctx, &wbh->ramdisk_size, sizeof(wbh->ramdisk_size));
+    SHA1_Update(&ctx, second_data, wbh->second_size);
+    SHA1_Update(&ctx, &wbh->second_size, sizeof(wbh->second_size));
+    if(dt_data) {
+        SHA1_Update(&ctx, dt_data, wbh->header_version);
+        SHA1_Update(&ctx, &wbh->header_version, sizeof(wbh->header_version));
+    } else if(wbh->header_version > 0) {
+        SHA1_Update(&ctx, recovery_dtbo_data, wbh->recovery_dtbo_size);
+        SHA1_Update(&ctx, &wbh->recovery_dtbo_size, sizeof(wbh->recovery_dtbo_size));
+        if(wbh->header_version > 1) {
+            SHA1_Update(&ctx, dtb_data, wbh->dtb_size);
+            SHA1_Update(&ctx, &wbh->dtb_size, sizeof(wbh->dtb_size));
+        }
+    }
+    sha = SHA1_Final(hash, &ctx);
+    memcpy(wbh->id, hash, SHA_DIGEST_LENGTH > sizeof(wbh->id) ? sizeof(wbh->id) : SHA_DIGEST_LENGTH);
+}
+
+void BootUtils::generate_id_sha256( void *kernel_data, void *ramdisk_data,
+                        void *second_data, void *dt_data, void *recovery_dtbo_data, void *dtb_data)
+{
+    SHA256_CTX ctx;
+
+    SHA256_Init(&ctx);
+    SHA256_Update(&ctx, kernel_data, wbh->kernel_size);
+    SHA256_Update(&ctx, &wbh->kernel_size, sizeof(wbh->kernel_size));
+    SHA256_Update(&ctx, ramdisk_data, wbh->ramdisk_size);
+    SHA256_Update(&ctx, &wbh->ramdisk_size, sizeof(wbh->ramdisk_size));
+    SHA256_Update(&ctx, second_data, wbh->second_size);
+    SHA256_Update(&ctx, &wbh->second_size, sizeof(wbh->second_size));
+    if(dt_data) {
+        SHA256_Update(&ctx, dt_data, wbh->header_version);
+        SHA256_Update(&ctx, &wbh->header_version, sizeof(wbh->header_version));
+    } else if(wbh->header_version > 0) {
+        SHA256_Update(&ctx, recovery_dtbo_data, wbh->recovery_dtbo_size);
+        SHA256_Update(&ctx, &wbh->recovery_dtbo_size, sizeof(wbh->recovery_dtbo_size));
+        if(wbh->header_version > 1) {
+            SHA256_Update(&ctx, dtb_data, wbh->dtb_size);
+            SHA256_Update(&ctx, &wbh->dtb_size, sizeof(wbh->dtb_size));
+        }
+    }
+    sha = SHA256_Final(hash,&ctx);
+    memcpy(wbh->id, hash, SHA256_DIGEST_LENGTH > sizeof(wbh->id) ? sizeof(wbh->id) : SHA256_DIGEST_LENGTH);
+}
+
 bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 
 	bool retval = true;
@@ -65,7 +136,6 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 	fseek(boot, PhysOS, SEEK_SET);
 
 	if ((fread(&boot_h, sizeof (boot_img_hdr), 1, boot)) == 1) {
-		printf("Boot header %d version.\r\n",boot_h.header_version);
 
 		if (boot_h.header_version>0&&boot_h.header_version<=hdr_ver_max) {
 			if(boot_h.header_version==1)
@@ -73,6 +143,11 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 			else fread(&((char *)&boot_h)[sizeof (boot_img_hdr)], sizeof(struct boot_img_hdr_v2)-sizeof (boot_img_hdr), 1, boot);
 		}
 		wbh = &boot_h;
+		if(boot_h.header_version<hdr_ver_max)fprintf(stdout,"Boot header %d version.\r\n",boot_h.header_version);
+
+		//Выясним что за SHA type
+		sha_type=detect_hash_type(wbh);
+
 		if (static_flen > boot_h.page_size) {
 
 			bootdump=new char[static_flen-(boot_h.page_size + PhysOS)];
@@ -142,7 +217,7 @@ void BootUtils::CloseBFile() {
 
 
 		if (static_flen > PhysOS) {
-			if ((boot = fopen(Bimgname, "wt+b")) != NULL) {
+			if ((boot = fopen(Bimgname, "wt")) != NULL) {
 				FullBoot = new char[static_flen];
 
 				//0xFF?>:)
@@ -150,35 +225,11 @@ void BootUtils::CloseBFile() {
 				//0x0
 				ZeroMem(wbh->id, sizeof (wbh->id));
 
-				SHA1_Init(&ctx);
-
-				SHA1_Update(&ctx, kernel_block_lnk, wbh->kernel_size);
-				SHA1_Update(&ctx, &wbh->kernel_size, sizeof (wbh->kernel_size));
-				SHA1_Update(&ctx, rootfs_block_lnk, wbh->ramdisk_size);
-				SHA1_Update(&ctx, &wbh->ramdisk_size, sizeof (wbh->ramdisk_size));
-				SHA1_Update(&ctx, unk_xzblk_lnk, wbh->second_size);
-				SHA1_Update(&ctx, &wbh->second_size, sizeof (wbh->second_size));
-
-				if(wbh->header_version>hdr_ver_max){
-					SHA1_Update(&ctx, dt_block_lnk, wbh->header_version);
-					SHA1_Update(&ctx, &wbh->header_version, sizeof (wbh->header_version));
-				}else{
-				if (wbh->header_version>0) {
-					SHA1_Update(&ctx, dtbo_block_lnk, wbh->recovery_dtbo_size);
-					SHA1_Update(&ctx, &wbh->recovery_dtbo_size, sizeof (wbh->recovery_dtbo_size));
-				if(wbh->header_version>1){
-					SHA1_Update(&ctx,dtb_block_lnk,wbh->dtb_size);
-					SHA1_Update(&ctx,&wbh->dtb_size,sizeof(wbh->dtb_size));
-				}
-				}
-				}
-				sha = SHA1_Final(hash, &ctx);
-				if (sha == 1)
-					memcpy(wbh->id, hash,
-						   SHA_DIGEST_LENGTH > sizeof (wbh->id) ? sizeof (wbh->id) : SHA_DIGEST_LENGTH);
-
-
 				memcpy(wbh->magic, BOOT_MAGIC, BOOT_MAGIC_SIZE);
+
+				if(!sha_type)generate_id_sha1(kernel_block_lnk,rootfs_block_lnk,unk_xzblk_lnk,dt_block_lnk,dtbo_block_lnk,dtb_block_lnk);
+				else generate_id_sha256(kernel_block_lnk,rootfs_block_lnk,unk_xzblk_lnk,dt_block_lnk,dtbo_block_lnk,dtb_block_lnk);
+
 				memcpy(&FullBoot[ PhysOS], wbh, sizeof (boot_img_hdr));
 
 				memcpy(&FullBoot[wbh->page_size + PhysOS], kernel_block_lnk,
@@ -471,7 +522,7 @@ void *BootUtils::GluedPage(int BLK) {
 				wbh->second_size=dest->llen+dest->dlen;
 				if (unk_xzblk_lnk)delete[] unk_xzblk_lnk;
 				unk_xzblk_lnk=block;
-			} else {
+			} else{
 				wbh->ramdisk_size=dest->llen+dest->dlen;
 				if (rootfs_block_lnk)delete[] rootfs_block_lnk;
 				rootfs_block_lnk=block;
@@ -802,7 +853,9 @@ void BootUtils::SetCurMainConfig(onegen_max_bootheader *conf) {
 			 secondfs=boot_h.second_size,
 			 dtbo=boot_h.recovery_dtbo_size,
 			 header=boot_h.header_size,
-			 dtb=boot_h.dtb_size;
+			 dtb=boot_h.dtb_size,
+			 ver_dt=boot_h.header_version;
+
 	if (conf) {
 		wbh = &boot_h;
 		memcpy(wbh, conf, sizeof (onegen_max_bootheader));
@@ -812,5 +865,8 @@ void BootUtils::SetCurMainConfig(onegen_max_bootheader *conf) {
 		wbh->recovery_dtbo_size=dtbo;
 		wbh->second_size=secondfs;
 		wbh->dtb_size=dtb;
+		if(ver_dt>hdr_ver_max)
+			wbh->header_version=ver_dt;
+
 	}
 }

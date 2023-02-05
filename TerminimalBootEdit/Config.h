@@ -51,6 +51,7 @@ typedef struct _osversion_ {
 #define    L_PROP_CMDLINE_EX "KERNEL_CMDLINE_EX"
 #define    L_PROP_RAMDISK_GZ_LVL	"RAMDISK_GZ_LVL"
 #define		L_PROP_BOOT_VERSION		"BOOT_VERSION"
+#define		L_PROP_CPIOBLK_ALIGN	"CPIO_PACK_BLOCK_ALIGN"
 
 #define     L_ID0   "INT_ID_0"
 #define     L_ID1   "INT_ID_1"
@@ -79,6 +80,7 @@ enum RW_var {
 	PROP_CMDLINE_EX,
 	PROP_RAMGZ_LVL,
 	PROP_BOOT_VERSION,
+	PROP_CPIOBLK_ALIGN,
 
 	ID0,
 	ID1,

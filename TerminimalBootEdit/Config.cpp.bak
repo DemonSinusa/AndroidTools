@@ -130,7 +130,7 @@ void Config::UnpackOSVersion(OSV *version, int packed) {
 
 Config::Config() {
 	memset(&ver, 0x00, sizeof (OSV));
-	memset(&it_cfg, 0x00, sizeof (droid_boot_header));
+	memset(&it_cfg, 0x00, sizeof (onegen_max_bootheader));
 }
 
 Config::~Config() {
@@ -185,7 +185,7 @@ int Config::EatBinConfig(void *data, unsigned int len) {
 	SetType(&options[PROP_RAMGZ_LVL], PROP_RAMGZ_LVL);
 
 	sprintf(options[PROP_BOOT_VERSION].txtname,"%d",curboot->header_version);
-	options[PROP_BOOT_VERSION].len=strlen(options[PROP_BOOT_VERSION].txtname);
+	options[PROP_BOOT_VERSION].len=sizeof (uint32_t);
 	SetType(&options[PROP_BOOT_VERSION],PROP_BOOT_VERSION);
 
 	if ((parlen = strlen((char *) curboot->cmdline)) != 0) {
@@ -249,14 +249,16 @@ int Config::EatBinConfig(void *data, unsigned int len) {
 		}
 		if (curboot->recovery_dtbo_offset>0) {
 			sprintf(options[PROP_DBO_ADDR].txtname, "0x%16lx", curboot->recovery_dtbo_offset);
-			options[PROP_DBO_ADDR].len = sizeof (uint32_t);
+			options[PROP_DBO_ADDR].len = sizeof (uint64_t);
 			SetType(&options[PROP_DBO_ADDR], PROP_DBO_ADDR);
 		}
 
 //Далее версия 2 заголовка
 		if(curboot->header_version>1){
 			if(curboot->dtb_addr>0){
-				sprintf(options[PRO])
+				sprintf(options[PROP_DTB_ADDR].txtname,"0x%16lx",curboot->dtb_addr);
+				options[PROP_DTB_ADDR].len=sizeof(uint64_t);
+				SetType(&options[PROP_DTB_ADDR],PROP_DTB_ADDR);
 			}
 		}
 	}
@@ -297,8 +299,11 @@ int Config::EatTxtConfig(void *data) {
 	return 1;
 }
 
-droid_boot_header *Config::GetHeader() {
-	memset(&it_cfg, 0x00, sizeof (droid_boot_header));
+onegen_max_bootheader *Config::GetHeader() {
+	memset(&it_cfg, 0x00, sizeof (onegen_max_bootheader));
+
+	if (options[PROP_BOOT_VERSION].len > 0)
+		sscanf(options[PROP_BOOT_VERSION].txtname, "%d", &it_cfg.header_version);
 
 	if (options[PROP_KERNEL_ADDR].len > 0)
 		sscanf(options[PROP_KERNEL_ADDR].txtname, "0x%08x", &it_cfg.kernel_addr);
@@ -339,6 +344,9 @@ droid_boot_header *Config::GetHeader() {
 
 	if (options[PROP_DBO_ADDR].len > 0)
 		sscanf(options[PROP_DBO_ADDR].txtname, "0x%16lx", &it_cfg.recovery_dtbo_offset);
+
+	if(options[PROP_DTB_ADDR].len>0)
+		sscanf(options[PROP_DTB_ADDR].txtname,"0x%16lx",&it_cfg.dtb_addr);
 
 	if (options[ID0].len > 0)
 		for (int i = 0; i < 8; i++) {

@@ -38,6 +38,7 @@ const char *names[] = {
 	L_PROP_CMDLINE_EX,
 	L_PROP_RAMDISK_GZ_LVL,
 	L_PROP_BOOT_VERSION,
+	L_PROP_CPIOBLK_ALIGN,
 
 	L_ID0,
 	L_ID1,
@@ -54,7 +55,7 @@ OPT options[NUM_PROPS];
 
 void Config::SetType(OPT *item, int i) {
 	if (i == PROP_KERNEL_ADDR || i == PROP_KERNELTAG_ADDR ||
-			i == PROP_ROOTFS_ADDR || i == PROP_SECONDFS_ADDR || i==PROP_DBO_ADDR || i==PROP_DTB_ADDR)
+			i == PROP_ROOTFS_ADDR || i == PROP_SECONDFS_ADDR || i==PROP_DBO_ADDR || i==PROP_CPIOBLK_ALIGN || i==PROP_DTB_ADDR)
 		item->datatype = TYPE_HEX;
 	else if (i == MIX_OS_VERSION || i == PROP_NAME || i == PROP_CMDLINE || i == PROP_CMDLINE_EX || i== PROP_RAMGZ_LVL)
 		item->datatype = TYPE_TXT;
@@ -283,6 +284,7 @@ int Config::EatTxtConfig(void *data) {
 	int len = 0;
 	UfNtype *str = (UfNtype *) data, *src = (UfNtype *) data;
 	SetParm((char *)"RAMDISK_GZ_LVL=-9", names);		//Предустановленые невычисляемые параметры
+	//CPIO_PACK_BLOCK_ALIGN=0xFF
 	while (len < tblklen) {
 		if (src[len] == '\r' || src[len] == '\n') {
 			src[len] = '\0';

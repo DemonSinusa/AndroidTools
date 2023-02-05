@@ -97,7 +97,7 @@ class BootUtils {
 		onegen_max_bootheader boot_h, *wbh = NULL;
 		SHA_CTX ctx;
 		unsigned char hash[SHA_DIGEST_LENGTH];
-		int sha = 0;
+		int sha = 0,sha_type=0;
 
 		FILE *boot = NULL;
 		unsigned int PhysOS = 0;
@@ -108,6 +108,12 @@ class BootUtils {
 		char *kernel_block_lnk = NULL,*rootfs_block_lnk = NULL,
 			  *unk_xzblk_lnk = NULL,*dt_block_lnk=NULL,
 			  *dtbo_block_lnk=NULL,*dtb_block_lnk=NULL;
+		//
+		int detect_hash_type(onegen_max_bootheader *hdr);
+		void generate_id_sha1( void *kernel_data, void *ramdisk_data,
+                      void *second_data, void *dt_data, void *recovery_dtbo_data, void *dtb_data);
+		void generate_id_sha256( void *kernel_data, void *ramdisk_data,
+                        void *second_data, void *dt_data, void *recovery_dtbo_data, void *dtb_data);
 		//
 		int SpilitPage(int BLK,void *blk,int len);
 		void *GluedPage(int BLK);

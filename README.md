@@ -13,9 +13,14 @@ WORK_DIR/
 	zImage.gz				//no comments
 	zImageDTB.bin			//Strings table of zImage.gz
 	ramdisk/				//Unpacked ramdisk.cpio.gz any users and access rights will be adjusted
-	ramdisk.cpio.gz		//no comments
-	secondpart.dat		//In official google doc's if have, then jump to second_addr instead kernel
-	dtbo.dat				//used in boot v1 only
+	ramdiskLoader.bin		//ramdisk.cpio.gz Loader if exists
+	ramdisk.cpio.gz			//no comments
+	secondpartLoader.bin	//secondpart.dat Loader if exists
+	secondpart.dat			//In official google doc's if have, then jump to second_addr instead kernel
+	DevTree.dat				//If bootheader_version contain size (version is 0)
+	dtbo.dat				//used in boot v1&&v2
+	dtb.dat					//used in boot v2 only
+	config.conf				//actual config to Done-Generate boot.img
 
 Modification:
 
@@ -26,5 +31,7 @@ droid_fs_repacker: if there is a "ramdisk /" directory in the working directory,
 zImage_builder_helper:in the presence of a suitable, untreated, nuclear core extract 
 	-attach as zImage.pck and exult, then remove the excess
 	
+Experimental parms:
+"CPIO_PACK_BLOCK_ALIGN=0xHEX"-Alignment of ramdisk.cpio archive size generative from ramdisk/.
 
 Out from standarts and limitless.. Good luck.

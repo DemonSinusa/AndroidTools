@@ -10,11 +10,17 @@
 #include <stdarg.h>
 #include <fcntl.h>
 
-//#include "android_filesystem_config.h"
+#include <bootimg.h>
 #include "FRulezConfigs.h"
 
 #include "mkbootfs.h"
+//Я этого тааак нехотел...(
+#include "BootUtils.h"
+#include "LowLvlPck.h"
+#include "Config.h"
+//-----------((((((((((
 
+extern OPT options[NUM_PROPS];
 
 static void fix_stat(const char *path, struct stat *s) {
 	fs_config(path, S_ISDIR(s->st_mode), &s->st_uid, &s->st_gid, &s->st_mode);
@@ -282,14 +288,17 @@ PCK *InitPacker(char *dir, char *afile, unsigned int nsc) {
 }
 
 void FInitPacker(PCK *p) {
-	int ffcount = 0;
+	int ffcount = 0,aliseek=0xff;
 	char *dich = (char *) "TRAILER!!!", *sotag = NULL;
 	struct stat opt;
 	opt.st_mode=420;
 	PackAdata(&opt, NULL, 0, dich, p);
-	//#warning "Эксперементальные рассчеты-приmo4ki"
-	while ((p->packsize + ffcount)& 0xff)ffcount++;
-
+//#warning "Эксперементальные рассчеты-приmo4ki"
+if(options[PROP_CPIOBLK_ALIGN].len>0){
+	sscanf((char *)options[PROP_CPIOBLK_ALIGN].txtname,"0x%08x",&aliseek);
+	while ((p->packsize + ffcount)& aliseek)ffcount++;
+	}
+//-----------------------------------
 	if (ffcount > 0) {
 		sotag = new char[ffcount];
 		memset(sotag, 0x00, ffcount);
