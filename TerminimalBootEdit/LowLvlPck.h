@@ -37,6 +37,7 @@ enum _its_filez {
 
 	IT_READ_ME,
 	IT_CONFIG,					//Текстовый конфиг
+	IT_ORIGFSIGN,				//Оригинальная сигнатура, если была, то будет прилеплена.
 
 	IT_WORKDIR,					//Рабочий каталог
 	IT_IMAGE,					//Путь до *.img

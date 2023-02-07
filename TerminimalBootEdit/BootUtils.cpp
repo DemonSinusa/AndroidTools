@@ -128,6 +128,7 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 	bool retval = true;
 	char *bootdump=NULL;
 
+
 	if ((boot = fopen(fname, "r+b")) == NULL)
 		return false;
 	fseek(boot, 0, SEEK_END);
@@ -143,7 +144,7 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 			else fread(&((char *)&boot_h)[sizeof (boot_img_hdr)], sizeof(struct boot_img_hdr_v2)-sizeof (boot_img_hdr), 1, boot);
 		}
 		wbh = &boot_h;
-		if(boot_h.header_version<hdr_ver_max)fprintf(stdout,"Boot header %d version.\r\n",boot_h.header_version);
+		if(boot_h.header_version<=hdr_ver_max)fprintf(stdout,"Boot header %d version.\r\n",boot_h.header_version);
 
 		//Выясним что за SHA type
 		sha_type=detect_hash_type(wbh);
@@ -165,6 +166,8 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 			dtb_p_len=(boot_h.dtb_size+boot_h.page_size-1)/boot_h.page_size;
 			}
 
+			PhysElse=(kernel.pcount+root_fs.pcount+second_part.pcount+dt_p_len+dtbo_p_len+dtb_p_len+1)*boot_h.page_size+PhysOS;
+
 			InjKernel(bootdump,boot_h.kernel_size);
 			InjROOTFS(&bootdump[kernel.pcount * boot_h.page_size],boot_h.ramdisk_size);
 			if (boot_h.second_size > 0) {
@@ -178,6 +181,10 @@ bool BootUtils::OpenBFGrab(UfNtype *fname, int offset) {
 			if(boot_h.dtb_size>0){
 				InjDtb(&bootdump[(kernel.pcount+root_fs.pcount+second_part.pcount+dtbo_p_len)*boot_h.page_size],boot_h.dtb_size);
 			}
+			}
+			//PhysElse=ftell(boot);
+			if(static_flen-PhysElse>0){
+				InjAnythink(&bootdump[PhysElse-boot_h.page_size-PhysOS],static_flen-PhysElse);
 			}
 
 			delete[] bootdump;
@@ -207,6 +214,8 @@ void BootUtils::CloseBFile() {
 		bootlen += root_fs.pcount * wbh->page_size; //+rootfs
 
 		bootlen += second_part.pcount * wbh->page_size; //Second stage
+
+		bootlen += makeweight_part.dlen;				//Остатки для конца
 
 		if(wbh->header_version>hdr_ver_max)bootlen+=dt_p_len*wbh->page_size;
 		else{
@@ -262,6 +271,10 @@ void BootUtils::CloseBFile() {
 				}
 				}
 //-------------------------
+			if (makeweight_part.dlen > 0)
+					memcpy(&FullBoot[(kernel.pcount + root_fs.pcount+second_part.pcount +dt_p_len+dtbo_p_len+dtb_p_len+ 1) * wbh->page_size + PhysOS],
+						   makeweight_lnk, makeweight_part.dlen);
+//=========================
 				fseek(boot, 0, SEEK_SET);
 				fwrite(FullBoot, static_flen, 1, boot);
 
@@ -281,6 +294,8 @@ void BootUtils::CloseBFile() {
 			delete[] dtbo_block_lnk;
 		if(dtb_block_lnk)
 			delete[] dtb_block_lnk;
+		if(makeweight_lnk)
+			delete[] makeweight_lnk;
 	}
 }
 
@@ -785,6 +800,34 @@ int BootUtils::InjDtb(char *fname){
 		return 0;
 }
 
+int BootUtils::InjAnythink(void *dump,int len){
+	if (!dump||len<1)return 0;
+	makeweight_part.dlen=len;
+
+//#warning "Здесь нужно расположить отделятор говна от примесей."
+	if(makeweight_lnk!=NULL)delete[] makeweight_lnk;
+	makeweight_lnk=new char[len];
+	memcpy(makeweight_lnk,dump,len);
+	return 1;
+}
+int BootUtils::InjAnythink(char *fname){
+	FILE *fh=NULL;
+	char *data=NULL;
+	int datalen=0;
+	if ((fh = fopen(fname, "rb")) != NULL) {
+		fseek(fh, 0, SEEK_END);
+		datalen = ftell(fh);
+		data = new char[datalen];
+		fseek(fh, 0, SEEK_SET);
+		if (fread(data, datalen, 1, fh)==1)
+			InjAnythink(data, datalen);
+		delete[] data;
+		fclose(fh);
+		return 1;
+	} else
+		return 0;
+}
+
 void *BootUtils::GetCurKernel(int *len) {
 	if (wbh == NULL)return NULL;
 
@@ -841,6 +884,13 @@ void *BootUtils::GetDtb(int *len){
 		*len=wbh->dtb_size;
 	dtb_p_len=(wbh->dtb_size+boot_h.page_size-1)/boot_h.page_size;
 	return dtb_block_lnk;
+}
+
+void *BootUtils::GetMakeweight(int *len){
+	if (len)
+		*len=makeweight_part.dlen;
+
+	return makeweight_lnk;
 }
 
 onegen_max_bootheader *BootUtils::GetCurMainConfig() {

@@ -20,6 +20,7 @@ WORK_DIR/
 	DevTree.dat				//If bootheader_version contain size (version is 0)
 	dtbo.dat				//used in boot v1&&v2
 	dtb.dat					//used in boot v2 only
+	Orig&FakenowSign.sigh	//Maked self or old paste signature to boot.img
 	config.conf				//actual config to Done-Generate boot.img
 
 Modification:

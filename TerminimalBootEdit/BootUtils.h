@@ -17,6 +17,7 @@
 #define KERNEL_BLK		1
 #define RAMFS_BLK		2
 #define SECONDFS_BLK	3
+#define	MAKEWEIGHT		4
 
 #define hdr_ver_max		8
 
@@ -51,7 +52,7 @@ class BootUtils {
 		virtual ~BootUtils();
 		char *FullBoot = NULL;
 		unsigned int static_flen = 0;
-		MPBLK kernel,root_fs,second_part;
+		MPBLK kernel,root_fs,second_part,makeweight_part;
 		Kdata kernel_data;
 		onegen_max_bootheader *GetCurMainConfig();
 		void SetCurMainConfig(onegen_max_bootheader *conf);
@@ -85,12 +86,15 @@ class BootUtils {
 		int InjDtbo(char *fname);
 		int InjDtb(void *dump,int len);
 		int InjDtb(char *fname);
+		int InjAnythink(void *dump,int len);
+		int InjAnythink(char *fname);
 		void *GetCurKernel(int *len);
 		void *GetCurROOTFS(int *len);
 		void *GetCurXZ401(int *len);
 		void *GetDTree(int *len);
 		void *GetDtbo(int *len);
 		void *GetDtb(int *len);
+		void *GetMakeweight(int *len);
 	private:
 		UfNtype *Bimgname = NULL;
 
@@ -100,14 +104,15 @@ class BootUtils {
 		int sha = 0,sha_type=0;
 
 		FILE *boot = NULL;
-		unsigned int PhysOS = 0;
+		unsigned int PhysOS = 0,PhysElse=0;
 
 
 
 		int dt_p_len=0x00,dtbo_p_len=0x00,dtb_p_len=0x00;
 		char *kernel_block_lnk = NULL,*rootfs_block_lnk = NULL,
 			  *unk_xzblk_lnk = NULL,*dt_block_lnk=NULL,
-			  *dtbo_block_lnk=NULL,*dtb_block_lnk=NULL;
+			  *dtbo_block_lnk=NULL,*dtb_block_lnk=NULL,
+			  *makeweight_lnk=NULL;
 		//
 		int detect_hash_type(onegen_max_bootheader *hdr);
 		void generate_id_sha1( void *kernel_data, void *ramdisk_data,

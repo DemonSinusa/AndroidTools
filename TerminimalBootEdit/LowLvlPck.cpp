@@ -75,6 +75,8 @@ void InitTargets() {
 	EnvDir[IT_DTBO_PF]=(char *)"dtbo.dat";
 	EnvDir[IT_DTB_PF]=(char *)"dtb.dat";
 	EnvDir[IT_CONFIG]=(char *) "config.conf";
+	EnvDir[IT_ORIGFSIGN]=(char *)"Orig&FakenowSign.sigh";
+
 
 
 	EnvDir[IT_READ_ME]=(char *) "README.txt";
@@ -363,7 +365,25 @@ int InOutPorting(char *selfname) {
 			}
 		}
 	}
-//---------------------------Dtb---------------------------------
+//----------------------------AnyWeight--------------------------------
+	if (!stat(EnvPath[IT_ORIGFSIGN], &tistic)) {
+		if (tistic.st_mode & (S_IFMT | S_IFREG)) {
+			if (tistic.st_size != 0) {
+				if (bu->InjAnythink(EnvPath[IT_ORIGFSIGN])!=1) {
+					fprintf(stderr, "*File:%s\r\n--File KARUPPIT&have>0 and readn't and getn'ttoo(\r\n", EnvPath[IT_ORIGFSIGN]);
+				}
+			}
+		}
+	} else {
+		tpoint = (char *) bu->GetMakeweight(&envlen);
+		if (envlen > 0) {
+			if ((fh = fopen(EnvPath[IT_ORIGFSIGN], "wb")) != NULL) {
+				fwrite(tpoint, envlen, 1, fh);
+				fclose(fh);
+			}
+		}
+	}
+//---------------------------===---------------------------------
 
 	delete cfg;
 	delete bu;
@@ -434,6 +454,12 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname) {
 			strcpy(EnvPath[IT_CONFIG], EnvPath[IT_WORKDIR]);
 			strcat(EnvPath[IT_CONFIG], tpoint);
 
+			tpoint = EnvDir[IT_ORIGFSIGN];
+			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
+			EnvPath[IT_ORIGFSIGN] = new UfNtype[tenvlen + 1];
+			strcpy(EnvPath[IT_ORIGFSIGN], EnvPath[IT_WORKDIR]);
+			strcat(EnvPath[IT_ORIGFSIGN], tpoint);
+
 			tpoint=EnvDir[IT_RAMFS_DIR];
 			tenvlen = strlen(EnvPath[IT_WORKDIR]) + strlen(tpoint);
 			EnvPath[IT_RAMFS_DIR] = new UfNtype[tenvlen + 1];
@@ -503,6 +529,7 @@ int ReMakeANDCatalogs(char *work_dir, char *selfname) {
 	delete[] EnvPath[IT_SECONDFS_LF];
 	delete[] EnvPath[IT_SECONDFS_PF];
 	delete[] EnvPath[IT_CONFIG];
+	delete[] EnvPath[IT_ORIGFSIGN];
 	delete[] EnvPath[IT_WORKDIR];
 	delete[] EnvPath[IT_RAMFS_DIR];
 	delete[] EnvPath[IT_KERNEL_F];
